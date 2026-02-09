@@ -1,4 +1,4 @@
-package sparta.paymentassignment.order.entity;
+package sparta.paymentassignment.domain.order;
 
 public enum OrderStatus {
     PENDING,     // 결제 대기

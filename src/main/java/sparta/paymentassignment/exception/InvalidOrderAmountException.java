@@ -1,4 +1,4 @@
-package sparta.paymentassignment.order.excption;
+package sparta.paymentassignment.exception;
 
 public class InvalidOrderAmountException extends RuntimeException {
     public InvalidOrderAmountException(Long amount) {

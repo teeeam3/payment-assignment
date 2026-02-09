@@ -1,4 +1,4 @@
-package sparta.paymentassignment.order.entity;
+package sparta.paymentassignment.domain.order;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;

@@ -1,16 +1,16 @@
-package sparta.paymentassignment.order.service;
+package sparta.paymentassignment.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import sparta.paymentassignment.order.dto.CreateOrderRequest;
-import sparta.paymentassignment.order.dto.CreateOrderResponse;
-import sparta.paymentassignment.order.dto.OrderDetailResponse;
-import sparta.paymentassignment.order.dto.OrderSummaryResponse;
-import sparta.paymentassignment.order.entity.Order;
-import sparta.paymentassignment.order.excption.InvalidOrderAmountException;
-import sparta.paymentassignment.order.excption.OrderNotFoundException;
-import sparta.paymentassignment.order.repository.OrderRepository;
+import sparta.paymentassignment.dto.order.CreateOrderRequest;
+import sparta.paymentassignment.dto.order.CreateOrderResponse;
+import sparta.paymentassignment.dto.order.OrderDetailResponse;
+import sparta.paymentassignment.dto.order.OrderSummaryResponse;
+import sparta.paymentassignment.domain.order.Order;
+import sparta.paymentassignment.exception.InvalidOrderAmountException;
+import sparta.paymentassignment.exception.OrderNotFoundException;
+import sparta.paymentassignment.repository.OrderRepository;
 
 import java.util.List;
 
