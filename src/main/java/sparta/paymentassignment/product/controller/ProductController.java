@@ -24,26 +24,14 @@ public class ProductController {
     @GetMapping
     public ResponseEntity<ApiResponse<List<ProductSummaryResponse>>> getProducts() {
 
-        return ResponseEntity.ok(
-                ApiResponse.success(
-                        200,
-                        "상품 목록 조회 성공",
-                        productService.getProducts()
-                )
-        );
+        return ResponseEntity.ok(ApiResponse.success(200, "상품 목록 조회 성공", productService.getProducts()));
     }
-
     // 상품 상세 조회 API
     @GetMapping("/{productId}")
     public ResponseEntity<ApiResponse<ProductDetailResponse>> getProduct(
             @PathVariable Long productId
     ) {
         return ResponseEntity.ok(
-                ApiResponse.success(
-                        200,
-                        "상품 상세 조회 성공",
-                        productService.getProduct(productId)
-                )
-        );
+                ApiResponse.success(200, "상품 상세 조회 성공", productService.getProduct(productId)));
     }
 }

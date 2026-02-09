@@ -3,7 +3,6 @@ package sparta.paymentassignment.product.excption;
 import sparta.paymentassignment.product.entity.ProductStatus;
 
 public class  InvalidProductStatusException extends RuntimeException {
-
     public InvalidProductStatusException(ProductStatus status) {
         super(switch (status) {
             case INACTIVE -> "판매 중지된 상품입니다.";

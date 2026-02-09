@@ -20,7 +20,6 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
-
     public List<ProductSummaryResponse> getProducts() {
         return productRepository.findByStatus(ProductStatus.ACTIVE)
                 .stream()
@@ -34,7 +33,6 @@ public class ProductService {
 
 
     }
-
     // 상품 상세 조회
     public ProductDetailResponse getProduct(Long productId) {
 
