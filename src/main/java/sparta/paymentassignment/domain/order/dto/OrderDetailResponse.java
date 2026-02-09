@@ -1,10 +1,9 @@
-package sparta.paymentassignment.dto.order;
+package sparta.paymentassignment.domain.order.dto;
 
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import sparta.paymentassignment.domain.order.OrderStatus;
-
-import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
