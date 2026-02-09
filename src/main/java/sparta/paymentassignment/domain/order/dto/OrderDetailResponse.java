@@ -8,11 +8,11 @@ import sparta.paymentassignment.domain.order.OrderStatus;
 @Getter
 @AllArgsConstructor
 public class OrderDetailResponse {
-    private Long orderId;
-    private String orderNumber;
-    private Long customerId;
-    private Long totalAmount;
-    private OrderStatus status;
-    private LocalDateTime orderedAt;
+    private final Long orderId;
+    private final String orderNumber;
+    private final Long customerId;
+    private final Long totalAmount;
+    private final OrderStatus status;
+    private final LocalDateTime orderedAt;
 
 }

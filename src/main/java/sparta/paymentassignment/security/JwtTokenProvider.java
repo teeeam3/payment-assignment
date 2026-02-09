@@ -1,10 +1,16 @@
 package sparta.paymentassignment.security;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
+import sparta.paymentassignment.exception.ErrorCode;
+import sparta.paymentassignment.exception.UnauthorizedException;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
@@ -36,16 +42,20 @@ public class JwtTokenProvider {
      * - 추가 Claims 정보 (이름, 이메일 등)
      * - Refresh Token 발급 로직
      */
-    public String createToken(String email) {
+    public String createToken(Authentication authentication) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + tokenValidityInMilliseconds);
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        String email = customUserDetails.getEmail();
+        Long userId = customUserDetails.getId();
 
         return Jwts.builder()
-            .subject(email)
-            .issuedAt(now)
-            .expiration(validity)
-            .signWith(secretKey)
-            .compact();
+                .subject(email)
+                .claim("userId", userId)
+                .issuedAt(now)
+                .expiration(validity)
+                .signWith(secretKey)
+                .compact();
     }
 
     /**
@@ -76,12 +86,16 @@ public class JwtTokenProvider {
                 .build()
                 .parseSignedClaims(token);
             return true;
-        } catch (Exception e) {
             // TODO: 구체적인 예외 처리 구현
             // - ExpiredJwtException: 만료된 토큰
             // - MalformedJwtException: 잘못된 형식
             // - SignatureException: 서명 오류
-            return false;
+        } catch (ExpiredJwtException e) {
+            throw new UnauthorizedException(ErrorCode.TOKEN_EXPIRED);
+        } catch (MalformedJwtException e) {
+            throw new UnauthorizedException(ErrorCode.TOKEN_MALFORMED);
+        } catch (SignatureException e) {
+            throw new UnauthorizedException(ErrorCode.TOKEN_INVALID_SIGNATURE);
         }
     }
 }
