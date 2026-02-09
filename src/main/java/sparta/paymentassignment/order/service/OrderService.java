@@ -44,7 +44,7 @@ public class OrderService {
     @Transactional(readOnly = true)
     public Order getOrder(Long orderId) {
         return orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("주문이 존재하지 않습니다."));
+                .orElseThrow(() -> new OrderNotFoundException(orderId));
     }
 
     @Transactional(readOnly = true)

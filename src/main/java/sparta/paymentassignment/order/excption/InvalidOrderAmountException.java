@@ -2,6 +2,6 @@ package sparta.paymentassignment.order.excption;
 
 public class InvalidOrderAmountException extends RuntimeException {
     public InvalidOrderAmountException(Long amount) {
-        super("잘못된 주문 금액 입니다." + amount);
+        super("유효하지 않은 주문 금액입니다. amount=" + amount);
     }
 }
