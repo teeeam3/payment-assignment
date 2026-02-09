@@ -6,8 +6,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class ProductSummaryResponse {
-    private Long id;
-    private String name;
-    private Long price;
-    private int stock;
+    private final Long id;
+    private final String name;
+    private final Long price;
+    private final int stock;
 }

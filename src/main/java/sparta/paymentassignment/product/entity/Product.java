@@ -32,4 +32,14 @@ public class Product {
     @Column(nullable = false)
     private String category;
 
+    public Product(String name, Long price, int stock, String description, ProductStatus status, String category) {
+        this.name = name;
+        this.price = price;
+        this.stock = stock;
+        this.description = description;
+        this.status = status;
+        this.category = category;
+    }
+
+
 }

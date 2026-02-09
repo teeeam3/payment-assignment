@@ -31,6 +31,8 @@ public class ProductService {
                         product.getStock()
                 ))
                 .toList();
+
+
     }
 
     // 상품 상세 조회
@@ -53,5 +55,4 @@ public class ProductService {
                 product.getCategory()
         );
     }
-
 }

@@ -7,12 +7,12 @@ import sparta.paymentassignment.product.entity.ProductStatus;
 @Getter
 @AllArgsConstructor
 public class ProductDetailResponse {
-    private Long id;
-    private String name;
-    private Long price;
-    private int stock;
-    private String description;
-    private ProductStatus status;
-    private String category;
+    private final Long id;
+    private final String name;
+    private final Long price;
+    private final int stock;
+    private final String description;
+    private final ProductStatus status;
+    private final String category;
 
 }
