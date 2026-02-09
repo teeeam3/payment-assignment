@@ -14,7 +14,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import sparta.paymentassignment.common.entity.BaseEntity;
-import sparta.paymentassignment.domain.order.Order;
 import sparta.paymentassignment.exception.InvalidStatusTransitionException;
 
 @Entity

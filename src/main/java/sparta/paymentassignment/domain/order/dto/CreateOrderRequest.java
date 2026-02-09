@@ -1,4 +1,4 @@
-package sparta.paymentassignment.dto.order;
+package sparta.paymentassignment.domain.order.dto;
 
 import lombok.Getter;
 
