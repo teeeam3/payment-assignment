@@ -1,18 +1,18 @@
-package sparta.paymentassignment.controller;
+package sparta.paymentassignment.domain.order.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sparta.paymentassignment.common.dto.ApiResponse;
-import sparta.paymentassignment.dto.order.CreateOrderRequest;
-import sparta.paymentassignment.dto.order.CreateOrderResponse;
-import sparta.paymentassignment.dto.order.OrderCreateResult;
-import sparta.paymentassignment.dto.order.OrderDetailResponse;
-import sparta.paymentassignment.dto.order.OrderSummaryResponse;
-import sparta.paymentassignment.service.OrderService;
 
 import java.util.List;
+import sparta.paymentassignment.domain.order.dto.CreateOrderRequest;
+import sparta.paymentassignment.domain.order.dto.CreateOrderResponse;
+import sparta.paymentassignment.domain.order.dto.OrderCreateResult;
+import sparta.paymentassignment.domain.order.dto.OrderDetailResponse;
+import sparta.paymentassignment.domain.order.dto.OrderSummaryResponse;
+import sparta.paymentassignment.domain.order.service.OrderService;
 
 @RestController
 @RequiredArgsConstructor

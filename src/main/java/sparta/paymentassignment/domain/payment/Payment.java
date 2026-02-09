@@ -14,7 +14,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import sparta.paymentassignment.common.entity.BaseEntity;
-import sparta.paymentassignment.domain.order.Order;
+import sparta.paymentassignment.exception.InvalidStatusTransitionException;
 
 @Entity
 @Getter
@@ -57,7 +57,7 @@ public class Payment extends BaseEntity {
       throw new IllegalArgumentException("금액은 0보다 커야 합니다");
     }
 
-    if (orderId == null) {
+    if (orderId == null || orderNumber==null) {
       throw new IllegalArgumentException("주문은 반드시 존재해야 합니다.");
     }
 
@@ -67,5 +67,34 @@ public class Payment extends BaseEntity {
 
     return new Payment(portonePaymentId.toString(), totalAmount, PaymentStatus.PENDING,
         null, null, orderId);
+  }
+
+  public Payment approve() {
+    validateTransition(PaymentStatus.APPROVED);
+
+    this.paymentStatus = PaymentStatus.APPROVED;
+    return this;
+  }
+
+  public Payment cancel() {
+    validateTransition(PaymentStatus.CANCELLED);
+
+    this.paymentStatus = PaymentStatus.CANCELLED;
+    return this;
+  }
+
+  public Payment refund() {
+    validateTransition(PaymentStatus.REFUNDED);
+
+    this.paymentStatus = PaymentStatus.REFUNDED;
+    return this;
+  }
+
+
+
+  private void validateTransition(PaymentStatus target) {
+    if (!paymentStatus.canMove(target)) {
+      throw new InvalidStatusTransitionException(this.paymentStatus, target);
+    }
   }
 }
