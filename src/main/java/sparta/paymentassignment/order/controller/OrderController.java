@@ -3,15 +3,12 @@ package sparta.paymentassignment.order.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import sparta.paymentassignment.common.dto.ApiResponse;
-import sparta.paymentassignment.order.dto.CreateOrderRequest;
-import sparta.paymentassignment.order.dto.CreateOrderResponse;
+import sparta.paymentassignment.order.dto.*;
 import sparta.paymentassignment.order.service.OrderService;
-import sparta.paymentassignment.order.dto.OrderCreateResult;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,5 +30,17 @@ public class OrderController {
                         new OrderCreateResult(response.getOrderId())
                 )
         );
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<OrderSummaryResponse>>> getOrders(){
+        return ResponseEntity.ok(ApiResponse.success(200,"주문 목록 조회 성공", orderService.getOrders()));
+    }
+
+    @GetMapping("/{orderId}")
+    public ResponseEntity<ApiResponse<OrderDetailResponse>> getOrderDetail(
+            @PathVariable Long orderId
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(200, "주문 상세 조회 성공", orderService.getOrderDetail(orderId)));
     }
 }

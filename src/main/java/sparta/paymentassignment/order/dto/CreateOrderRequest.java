@@ -5,6 +5,11 @@ import lombok.Getter;
 @Getter
 public class CreateOrderRequest {
 
-    private Long customerId;
-    private Long totalAmount;
+    private final Long customerId;
+    private final Long totalAmount;
+
+    public CreateOrderRequest(Long customerId, Long totalAmount) {
+        this.customerId = customerId;
+        this.totalAmount = totalAmount;
+    }
 }
