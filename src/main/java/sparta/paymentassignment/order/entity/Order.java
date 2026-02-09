@@ -53,6 +53,4 @@ public class Order extends BaseEntity {
         this.orderStatus = OrderStatus.REFUNDED;
         this.canceledReason = reason;
     }
-
-
 }
