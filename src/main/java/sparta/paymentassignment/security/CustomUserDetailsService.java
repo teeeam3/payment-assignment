@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import sparta.paymentassignment.domain.user.User;
-import sparta.paymentassignment.repository.UserRepository;
+import sparta.paymentassignment.domain.user.repository.UserRepository;
 
 @Service
 @AllArgsConstructor

@@ -1,10 +1,10 @@
-package sparta.paymentassignment.controller;
+package sparta.paymentassignment.domain.user.controller;
 
-import sparta.paymentassignment.dto.user.LoginRequest;
-import sparta.paymentassignment.dto.user.LoginResponse;
-import sparta.paymentassignment.dto.user.RegisterRequest;
-import sparta.paymentassignment.dto.user.RegisterResponse;
-import sparta.paymentassignment.service.UserService;
+import sparta.paymentassignment.domain.user.dto.LoginRequest;
+import sparta.paymentassignment.domain.user.dto.LoginResponse;
+import sparta.paymentassignment.domain.user.dto.RegisterRequest;
+import sparta.paymentassignment.domain.user.dto.RegisterResponse;
+import sparta.paymentassignment.domain.user.service.UserService;
 import sparta.paymentassignment.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
