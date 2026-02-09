@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sparta.paymentassignment.domain.payment.Payment;
 import sparta.paymentassignment.domain.payment.PaymentStatus;
+import sparta.paymentassignment.domain.payment.common.PortOneClient;
 import sparta.paymentassignment.domain.payment.dto.PaymentDetail;
 import sparta.paymentassignment.domain.payment.dto.PaymentRequest;
 import sparta.paymentassignment.domain.payment.dto.PaymentResponse;
@@ -44,7 +45,7 @@ public class PaymentService {
 
         // 2. 포트원 서버 조회 및 검증 (최종 금액 확인)
         PortOneResponse pgData = portOneClient.verify(paymentId);
-        if (!pgData.getAmount().equals(payment.getTotalAmount())) {
+        if (!pgData.isValid(payment.getTotalAmount())) {
             throw new PaymentAmountMismatchException();
         }
 
@@ -60,7 +61,7 @@ public class PaymentService {
 
         } catch (Exception e) {
             // [보상 트랜잭션] 실패 시 포트원 결제 취소 API 호출
-            portOneClient.cancel(paymentId, "서버 내부 처리 실패");
+            portOneClient.cancel(paymentId, "서버 내부 처리 실패: " + e.getMessage());
             throw e;
         }
     }
