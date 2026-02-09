@@ -7,6 +7,8 @@ import sparta.paymentassignment.product.dto.ProductDetailResponse;
 import sparta.paymentassignment.product.dto.ProductSummaryResponse;
 import sparta.paymentassignment.product.entity.Product;
 import sparta.paymentassignment.product.entity.ProductStatus;
+import sparta.paymentassignment.product.excption.InvalidProductStatusException;
+import sparta.paymentassignment.product.excption.ProductNotFoundException;
 import sparta.paymentassignment.product.repository.ProductRepository;
 
 import java.util.List;
@@ -35,7 +37,11 @@ public class ProductService {
     public ProductDetailResponse getProduct(Long productId) {
 
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new IllegalArgumentException("상품이 존재하지 않습니다."));
+                .orElseThrow(() -> new ProductNotFoundException(productId));
+
+        if (product.getStatus() != ProductStatus.ACTIVE) {
+            throw new InvalidProductStatusException(product.getStatus());
+        }
 
         return new ProductDetailResponse(
                 product.getId(),
