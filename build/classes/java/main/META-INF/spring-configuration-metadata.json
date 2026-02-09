@@ -23,14 +23,12 @@
     {
       "name": "portone.api",
       "type": "sparta.paymentassignment.config.PortOneProperties$Api",
-      "sourceType": "sparta.paymentassignment.config.PortOneProperties",
-      "sourceMethod": "getApi()"
+      "sourceType": "sparta.paymentassignment.config.PortOneProperties"
     },
     {
       "name": "portone.store",
       "type": "sparta.paymentassignment.config.PortOneProperties$Store",
-      "sourceType": "sparta.paymentassignment.config.PortOneProperties",
-      "sourceMethod": "getStore()"
+      "sourceType": "sparta.paymentassignment.config.PortOneProperties"
     }
   ],
   "properties": [

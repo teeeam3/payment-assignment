@@ -1,16 +1,15 @@
 package sparta.paymentassignment.controller;
 
+import sparta.paymentassignment.dto.user.LoginRequest;
+import sparta.paymentassignment.dto.user.LoginResponse;
+import sparta.paymentassignment.dto.user.RegisterRequest;
+import sparta.paymentassignment.dto.user.RegisterResponse;
+import sparta.paymentassignment.service.UserService;
 import sparta.paymentassignment.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -28,6 +27,7 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
+    private final UserService userService;
 
     /**
      * 로그인 API
@@ -49,35 +49,13 @@ public class AuthController {
      * }
      */
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> request) {
-        String email = request.get("email");
-        String password = request.get("password");
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.login(request));
+    }
 
-        Map<String, Object> response = new HashMap<>();
-
-        try {
-            // 1. 인증 시도
-            authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(email, password)
-            );
-
-            // 2. JWT 토큰 생성
-            String token = jwtTokenProvider.createToken(email);
-
-            // 3. 응답
-            response.put("success", true);
-            response.put("email", email);
-
-            return ResponseEntity.ok()
-                .header("Authorization", "Bearer " + token)
-                .body(response);
-
-        } catch (AuthenticationException e) {
-            // 인증 실패
-            response.put("success", false);
-            response.put("message", "이메일 또는 비밀번호가 올바르지 않습니다.");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-        }
+    @PostMapping("/register")
+    public ResponseEntity<RegisterResponse> registser(@RequestBody RegisterRequest request) {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.register(request));
     }
 
     /**
