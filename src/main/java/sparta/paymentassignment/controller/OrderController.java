@@ -1,12 +1,16 @@
-package sparta.paymentassignment.order.controller;
+package sparta.paymentassignment.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sparta.paymentassignment.common.dto.ApiResponse;
-import sparta.paymentassignment.order.dto.*;
-import sparta.paymentassignment.order.service.OrderService;
+import sparta.paymentassignment.dto.order.CreateOrderRequest;
+import sparta.paymentassignment.dto.order.CreateOrderResponse;
+import sparta.paymentassignment.dto.order.OrderCreateResult;
+import sparta.paymentassignment.dto.order.OrderDetailResponse;
+import sparta.paymentassignment.dto.order.OrderSummaryResponse;
+import sparta.paymentassignment.service.OrderService;
 
 import java.util.List;
 
