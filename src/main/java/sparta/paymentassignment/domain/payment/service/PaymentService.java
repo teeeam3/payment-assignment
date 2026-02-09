@@ -50,7 +50,7 @@ public class PaymentService {
 
         try {
             // 3. 결제 완료 상태로 변경 (엔티티 내 approve 활용)
-            payment.markAsPaid();
+            payment.approve();
 
             // 4. [연관 포인트 적립] 멤버십 등급별 적립률 적용 로직 호출
             pointService.accumulate(payment.getOrderId(), payment.getTotalAmount());

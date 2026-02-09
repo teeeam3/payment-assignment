@@ -2,6 +2,6 @@ package sparta.paymentassignment.exception;
 
 public class OrderNotFoundException extends RuntimeException{
     public OrderNotFoundException(Long OrderId) {
-        super("잘못된 주문 금액 입니다." + OrderId);
+        super("해당 주문이 존재하지 않습니다. orderId=" + OrderId);
     }
 }

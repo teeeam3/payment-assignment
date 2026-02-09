@@ -1,5 +1,7 @@
 package sparta.paymentassignment.config;
 
+import lombok.RequiredArgsConstructor;
+import sparta.paymentassignment.security.CustomUserDetailsService;
 import sparta.paymentassignment.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,13 +33,11 @@ import static org.springframework.boot.security.autoconfigure.web.servlet.PathRe
  */
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-    }
+    private final CustomUserDetailsService customUserDetailsService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -58,6 +58,8 @@ public class SecurityConfig {
                     // 2) 템플릿 페이지 렌더링
                     .requestMatchers(HttpMethod.GET, "/").permitAll()
                     .requestMatchers(HttpMethod.GET, "/pages/**").permitAll()
+                    // 상품 조회 API 임시 허용
+                    .requestMatchers(HttpMethod.GET, "/products", "/products/**").permitAll()
 
                     // 3) 공개 API
                     .requestMatchers(HttpMethod.GET, "/api/public/**").permitAll()
@@ -74,9 +76,10 @@ public class SecurityConfig {
                     // 6) 나머지 전부 인증 필요
                     .anyRequest().authenticated()
             )
+                .userDetailsService(customUserDetailsService)
+                // JWT 필터 추가
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-            // JWT 필터 추가
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -92,16 +95,16 @@ public class SecurityConfig {
     /**
      * Admin 계정 (InMemory - 데모용)
      */
-    @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
-        UserDetails admin = User.builder()
-            .username("admin@test.com")
-            .password(passwordEncoder.encode("admin"))
-            .roles("USER", "ADMIN")
-            .build();
-
-        return new InMemoryUserDetailsManager(admin);
-    }
+//    @Bean
+//    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
+//        UserDetails admin = User.builder()
+//            .username("admin@test.com")
+//            .password(passwordEncoder.encode("admin"))
+//            .roles("USER", "ADMIN")
+//            .build();
+//
+//        return new InMemoryUserDetailsManager(admin);
+//    }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) {
