@@ -58,6 +58,8 @@ public class SecurityConfig {
                     // 2) 템플릿 페이지 렌더링
                     .requestMatchers(HttpMethod.GET, "/").permitAll()
                     .requestMatchers(HttpMethod.GET, "/pages/**").permitAll()
+                    // 상품 조회 API 임시 허용
+                    .requestMatchers(HttpMethod.GET, "/products", "/products/**").permitAll()
 
                     // 3) 공개 API
                     .requestMatchers(HttpMethod.GET, "/api/public/**").permitAll()
@@ -70,9 +72,6 @@ public class SecurityConfig {
 
                     // 주문 API 임시 허용
                     .requestMatchers("/orders/**").permitAll()
-
-                    // 상품 조회 API 임시 허용
-                    .requestMatchers(HttpMethod.GET, "/products", "/products/**").permitAll()
 
                     // 6) 나머지 전부 인증 필요
                     .anyRequest().authenticated()
