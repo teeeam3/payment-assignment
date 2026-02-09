@@ -1,7 +1,7 @@
-package sparta.paymentassignment.order.repository;
+package sparta.paymentassignment.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import sparta.paymentassignment.order.entity.Order;
+import sparta.paymentassignment.domain.order.Order;
 
 import java.util.Optional;
 

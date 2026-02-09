@@ -1,8 +1,8 @@
-package sparta.paymentassignment.order.dto;
+package sparta.paymentassignment.dto.order;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import sparta.paymentassignment.order.entity.OrderStatus;
+import sparta.paymentassignment.domain.order.OrderStatus;
 
 @Getter
 @AllArgsConstructor

@@ -1,13 +1,4 @@
-# Gradle
-.gradle/
 build/
 
-# IntelliJ
-.idea/
 *.iml
 
-# Compiled
-*.class
-
-# Logs
-*.log
