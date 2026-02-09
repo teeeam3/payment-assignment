@@ -17,42 +17,46 @@ import java.util.Map;
 public class PortOneClientImpl implements PortOneClient {
     private final RestTemplate restTemplate;
 
+    // application.yml에 정의된 설정값 주입
     @Value("${portone.api.key}")
     private String apiKey;
 
     @Value("${portone.api.secret}")
     private String apiSecret;
 
+    @Value("${portone.api.base-url}")
+    private String baseUrl;
+
     @Override
     public PortOneResponse verify(String impUid) {
-        // 1. 포트원 조회 API URL
-        String url = "https://api.iamport.kr/payments/" + impUid;
+        // 1. 단건 조회 API 경로 조립
+        String url = baseUrl + "/payments/" + impUid;
 
-        // 2. 인증 헤더 설정 (실무 필수)
+        // 2. 인증 헤더에 발급받은 Access Token 세팅
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", getAccessToken()); // 토큰 발급 메서드 호출
+        headers.set("Authorization", getAccessToken());
 
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
         try {
-            // 3. 민우님이 만든 PortOneResponse로 결과 매핑 [cite: 2026-01-16]
+            // 3. 외부 API 호출 및 민우님이 만든 DTO로 결과 수신
             return restTemplate.exchange(url, HttpMethod.GET, entity, PortOneResponse.class).getBody();
         } catch (Exception e) {
-            // [cite: 2026-01-16]
             throw new RuntimeException("포트원 조회 실패: " + e.getMessage());
         }
     }
 
     @Override
     public void cancel(String impUid, String reason) {
-        String url = "https://api.iamport.kr/payments/cancel";
+        // 결제 취소 API 경로 조립
+        String url = baseUrl + "/payments/cancel";
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Authorization", getAccessToken());
 
-        // 취소 요청 바디 구성
+        // 포트원 규격에 맞는 취소 요청 데이터 구성
         Map<String, String> body = Map.of(
                 "imp_uid", impUid,
                 "reason", reason
@@ -61,6 +65,7 @@ public class PortOneClientImpl implements PortOneClient {
         HttpEntity<Map<String, String>> entity = new HttpEntity<>(body, headers);
 
         try {
+            // 보상 트랜잭션 성격이므로 실패해도 로그만 남기고 예외는 최소화
             restTemplate.postForEntity(url, entity, String.class);
             System.out.println("포트원 결제 취소 완료: " + impUid + ", 사유: " + reason);
         } catch (Exception e) {
@@ -68,15 +73,17 @@ public class PortOneClientImpl implements PortOneClient {
         }
     }
 
-    // 포트원 API 사용을 위한 Access Token 발급 (내부 메서드)
+
+     //포트원 API 사용을 위한 인증 토큰 획득 (모든 요청 전 필수 수행)
     private String getAccessToken() {
-        String url = "https://api.iamport.kr/users/getToken";
+        String url = baseUrl + "/users/getToken";
         Map<String, String> body = Map.of(
                 "imp_key", apiKey,
                 "imp_secret", apiSecret
         );
 
         try {
+            // API 키와 시크릿으로 토큰 발급 요청
             Map<String, Object> response = restTemplate.postForObject(url, body, Map.class);
             Map<String, String> res = (Map<String, String>) response.get("response");
             return res.get("access_token");
