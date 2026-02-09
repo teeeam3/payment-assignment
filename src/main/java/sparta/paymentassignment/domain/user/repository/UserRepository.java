@@ -1,4 +1,4 @@
-package sparta.paymentassignment.repository;
+package sparta.paymentassignment.domain.user.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import sparta.paymentassignment.domain.user.User;

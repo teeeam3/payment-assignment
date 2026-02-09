@@ -1,4 +1,4 @@
-package sparta.paymentassignment.dto.user;
+package sparta.paymentassignment.domain.user.dto;
 
 import lombok.Getter;
 
