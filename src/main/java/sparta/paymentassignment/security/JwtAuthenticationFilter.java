@@ -12,6 +12,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import sparta.paymentassignment.exception.ErrorCode;
+import sparta.paymentassignment.exception.UnauthorizedException;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -63,11 +65,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 // 5. SecurityContext에 인증 정보 설정
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
-        } catch (Exception e) {
-            logger.error("JWT 인증 실패", e);
+        } catch (UnauthorizedException e) {
+            throw new UnauthorizedException(ErrorCode.TOKEN_EXPIRED);
             // TODO: 구현 - 적절한 에러 응답
+        } catch (Exception e) {
+            throw new UnauthorizedException(ErrorCode.TOKEN_INVALID);
         }
-
         filterChain.doFilter(request, response);
     }
 

@@ -13,6 +13,8 @@ import sparta.paymentassignment.dto.user.LoginResponse;
 import sparta.paymentassignment.dto.user.RegisterRequest;
 import sparta.paymentassignment.dto.user.RegisterResponse;
 import sparta.paymentassignment.domain.user.UserRole;
+import sparta.paymentassignment.exception.EmailDuplicationException;
+import sparta.paymentassignment.exception.ErrorCode;
 import sparta.paymentassignment.repository.UserRepository;
 import sparta.paymentassignment.security.CustomUserDetails;
 import sparta.paymentassignment.security.JwtTokenProvider;
@@ -28,7 +30,7 @@ public class UserService {
     @Transactional
     public RegisterResponse register(RegisterRequest request) {
         boolean existence = userRepository.existsByEmail(request.getEmail());
-        if (existence) throw new IllegalArgumentException("존재하는 이메일");
+        if (existence) throw new EmailDuplicationException(ErrorCode.DUPLICATE_EMAIL);
 
         User user = new User(
                 request.getName(),

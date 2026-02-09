@@ -9,6 +9,8 @@ import io.jsonwebtoken.security.SignatureException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
+import sparta.paymentassignment.exception.ErrorCode;
+import sparta.paymentassignment.exception.UnauthorizedException;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
@@ -89,13 +91,11 @@ public class JwtTokenProvider {
             // - MalformedJwtException: 잘못된 형식
             // - SignatureException: 서명 오류
         } catch (ExpiredJwtException e) {
-
+            throw new UnauthorizedException(ErrorCode.TOKEN_EXPIRED);
         } catch (MalformedJwtException e) {
-
+            throw new UnauthorizedException(ErrorCode.TOKEN_MALFORMED);
         } catch (SignatureException e) {
-
+            throw new UnauthorizedException(ErrorCode.TOKEN_INVALID_SIGNATURE);
         }
-        return false;
     }
-
 }
