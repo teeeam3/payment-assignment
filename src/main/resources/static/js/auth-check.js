@@ -33,6 +33,7 @@ function checkAuthentication() {
 function displayUserInfo() {
     // JWT 토큰에서 이메일 추출
     const email = typeof getEmailFromToken === 'function' ? getEmailFromToken() : null;
+    console.log(email)
     const navbarActions = document.querySelector('.navbar-actions');
 
     if (email && navbarActions) {
