@@ -13,7 +13,6 @@ import sparta.paymentassignment.domain.user.UserRole;
 import sparta.paymentassignment.exception.EmailDuplicationException;
 import sparta.paymentassignment.exception.ErrorCode;
 import sparta.paymentassignment.domain.user.repository.UserRepository;
-import sparta.paymentassignment.exception.UnauthorizedException;
 import sparta.paymentassignment.exception.UserNotFoundException;
 import sparta.paymentassignment.security.CustomUserDetails;
 import sparta.paymentassignment.security.JwtTokenProvider;

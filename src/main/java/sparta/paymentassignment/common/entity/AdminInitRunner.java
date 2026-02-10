@@ -27,7 +27,8 @@ public class AdminInitRunner implements CommandLineRunner {
                 "010-0000-0001",
                 "admin@test.com",
                 passwordEncoder.encode("admin"),
-                UserRole.ADMIN
+                UserRole.ADMIN,
+                5000L
         );
         userRepository.save(admin);
     }
