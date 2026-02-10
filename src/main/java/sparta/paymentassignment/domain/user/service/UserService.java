@@ -38,7 +38,8 @@ public class UserService {
                 request.getPhone(),
                 request.getEmail(),
                 passwordEncoder.encode(request.getPassword()),
-                UserRole.USER
+                UserRole.USER,
+                0L
         );
         userRepository.save(user);
         return new RegisterResponse(
@@ -81,7 +82,7 @@ public class UserService {
                 customerUid,
                 user.getName(),
                 user.getPhone(),
-                0L
+                user.getPointBalance()
         );
     }
 }
