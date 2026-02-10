@@ -1,6 +1,7 @@
 package sparta.paymentassignment.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Primary;
 import sparta.paymentassignment.security.CustomUserDetailsService;
 import sparta.paymentassignment.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
@@ -91,20 +92,6 @@ public class SecurityConfig {
     public static PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
-    /**
-     * Admin 계정 (InMemory - 데모용)
-     */
-//    @Bean
-//    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
-//        UserDetails admin = User.builder()
-//            .username("admin@test.com")
-//            .password(passwordEncoder.encode("admin"))
-//            .roles("USER", "ADMIN")
-//            .build();
-//
-//        return new InMemoryUserDetailsManager(admin);
-//    }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) {
