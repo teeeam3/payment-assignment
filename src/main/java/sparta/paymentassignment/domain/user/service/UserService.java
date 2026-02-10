@@ -8,16 +8,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sparta.paymentassignment.domain.user.User;
-import sparta.paymentassignment.domain.user.dto.LoginRequest;
-import sparta.paymentassignment.domain.user.dto.LoginResponse;
-import sparta.paymentassignment.domain.user.dto.RegisterRequest;
-import sparta.paymentassignment.domain.user.dto.RegisterResponse;
+import sparta.paymentassignment.domain.user.dto.*;
 import sparta.paymentassignment.domain.user.UserRole;
 import sparta.paymentassignment.exception.EmailDuplicationException;
 import sparta.paymentassignment.exception.ErrorCode;
 import sparta.paymentassignment.domain.user.repository.UserRepository;
+import sparta.paymentassignment.exception.UserNotFoundException;
 import sparta.paymentassignment.security.CustomUserDetails;
 import sparta.paymentassignment.security.JwtTokenProvider;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +37,8 @@ public class UserService {
                 request.getPhone(),
                 request.getEmail(),
                 passwordEncoder.encode(request.getPassword()),
-                UserRole.USER
+                UserRole.USER,
+                0L
         );
         userRepository.save(user);
         return new RegisterResponse(
@@ -63,6 +64,24 @@ public class UserService {
                 customUserDetails.getId(),
                 customUserDetails.getEmail(),
                 token
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public GetUserResponse getUser(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND)
+        );
+
+        String rand = UUID.randomUUID().toString().substring(0, 6);
+        String customerUid = "CUST_" + user.getId() + "_" + rand;
+
+        return new GetUserResponse(
+                user.getEmail(),
+                customerUid,
+                user.getName(),
+                user.getPhone(),
+                user.getPointBalance()
         );
     }
 }

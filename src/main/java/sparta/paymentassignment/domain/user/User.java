@@ -22,13 +22,16 @@ public class User extends BaseEntity {
     private String email;
     private String password;
     private UserRole role;
+    @Column(nullable = false)
+    private Long pointBalance = 0L;
 
-    public User(String name, String phone, String email, String password, UserRole role) {
+    public User(String name, String phone, String email, String password, UserRole role, Long pointBalance) {
         this.name = name;
         this.phone = phone;
         this.email = email;
         this.password = password;
         this.role = role;
+        this.pointBalance = pointBalance;
     }
 
 
