@@ -1,5 +1,6 @@
 package sparta.paymentassignment.domain.user.controller;
 
+import sparta.paymentassignment.common.dto.ApiResponse;
 import sparta.paymentassignment.domain.user.dto.LoginRequest;
 import sparta.paymentassignment.domain.user.dto.LoginResponse;
 import sparta.paymentassignment.domain.user.dto.RegisterRequest;
@@ -49,13 +50,15 @@ public class AuthController {
      * }
      */
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.login(request));
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest request) {
+        LoginResponse response = userService.login(request);
+        String token = response.getToken();
+        return ResponseEntity.status(HttpStatus.OK).header("Authorization", "Bearer " + token).body(ApiResponse.success(201, "로그인 성공", response));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<RegisterResponse> registser(@RequestBody RegisterRequest request) {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.register(request));
+    public ResponseEntity<ApiResponse<RegisterResponse>> registser(@RequestBody RegisterRequest request) {
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(201, "회원 가입 성공", userService.register(request)));
     }
 
     /**

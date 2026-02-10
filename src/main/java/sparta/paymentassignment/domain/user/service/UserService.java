@@ -37,7 +37,7 @@ public class UserService {
                 request.getPhone(),
                 request.getEmail(),
                 passwordEncoder.encode(request.getPassword()),
-                UserRole.getRole(request.getRole())
+                UserRole.USER
         );
         userRepository.save(user);
         return new RegisterResponse(
