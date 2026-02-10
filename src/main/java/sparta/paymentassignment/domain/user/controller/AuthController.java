@@ -1,7 +1,6 @@
 package sparta.paymentassignment.domain.user.controller;
 
 import sparta.paymentassignment.common.dto.ApiResponse;
-import sparta.paymentassignment.config.PortOneProperties;
 import sparta.paymentassignment.domain.user.dto.*;
 import sparta.paymentassignment.domain.user.service.UserService;
 import sparta.paymentassignment.security.JwtTokenProvider;
@@ -12,8 +11,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 인증 관련 API 컨트롤러
