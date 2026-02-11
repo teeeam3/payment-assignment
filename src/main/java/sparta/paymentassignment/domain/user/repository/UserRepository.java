@@ -15,8 +15,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
 
     @Modifying(clearAutomatically = true)
-    @Query("update User u set u.pointBalance = u.pointBalance+:point where u.id=:userId")
-    int updatePointByUserId(@Param("userId") Long userId, @Param("point") BigDecimal point);
+    @Query("update User u set u.pointBalance =:newPoint where u.id=:userId")
+    int updatePointByUserId(@Param("userId") Long userId, @Param("newPoint") BigDecimal point);
 
-
+    @Query("select u.pointBalance from User u where u.id = :userId")
+    BigDecimal findPointByUserId(@Param("userId") Long userId);
 }

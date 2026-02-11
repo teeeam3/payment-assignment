@@ -22,13 +22,14 @@ public class PointService {
 
   @Transactional
   public void registPoint(Long userId, Long orderId, BigDecimal totalAmount) {
+    // 총 결제금액의 3%가 point로 들어감
+    BigDecimal pointAccumulatedAmount = totalAmount.multiply(BigDecimal.valueOf(0.03));
+
     // UserService를 통해 유저 잔액 업데이트
-    int updatedRows = userService.updatePointByUserId(userId, totalAmount);
+    int updatedRows = userService.updatePointByUserId(userId, pointAccumulatedAmount);
     if (updatedRows == 0) {
       throw new UserNotFoundException(ErrorCode.USER_NOT_FOUND);
     }
-    // 총 결제금액의 3%가 point로 들어감
-    BigDecimal pointAccumulatedAmount = totalAmount.multiply(BigDecimal.valueOf(0.03));
 
     // 포인트 테이블에 이력 저장
     Point pointHistory = Point.builder()

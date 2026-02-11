@@ -86,7 +86,10 @@ public class UserService {
         );
     }
 
+    @Transactional
     public int updatePointByUserId(Long userId, BigDecimal point) {
-      return userRepository.updatePointByUserId(userId, point);
+      BigDecimal currentPoint = userRepository.findPointByUserId(userId);
+      BigDecimal newPoint = currentPoint.add(point);
+      return userRepository.updatePointByUserId(userId, newPoint);
     }
 }
