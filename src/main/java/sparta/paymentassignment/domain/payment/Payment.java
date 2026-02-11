@@ -7,6 +7,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -21,7 +22,10 @@ import sparta.paymentassignment.exception.InvalidStatusTransitionException;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "payments")
+// 비관적 락 걸었을시 인덱스가 없으면 DB는 테이블 전체를 잠가버림.
+@Table(name = "payments", indexes = {
+    @Index(name = "idx_portone_payment_id", columnList = "portone_payment_id")
+})
 public class Payment extends BaseEntity {
 
   @Id
