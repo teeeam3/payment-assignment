@@ -61,6 +61,9 @@ public class WebhookService {
     // 재고 복구
     // 주문 생성 시 차감했던 재고를 다시 더해준다.
     orderService.restoreStock(payment.getOrderId());
+
+    // 주문 상태를 확정시킴
+    payment.cancel();
   }
 
   // 실제 DB 상태를 변경 시킴
