@@ -1,6 +1,8 @@
 package sparta.paymentassignment.domain.order.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import sparta.paymentassignment.domain.order.OrderStatus;
@@ -14,5 +16,6 @@ public class OrderDetailResponse {
     private final Long totalAmount;
     private final OrderStatus status;
     private final LocalDateTime orderedAt;
+    private final List<OrderItemResponse> items;  // 🔥 필수
 
 }

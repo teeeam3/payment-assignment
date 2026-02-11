@@ -8,6 +8,8 @@ import org.hibernate.annotations.NaturalId;
 import sparta.paymentassignment.common.entity.BaseEntity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -36,7 +38,9 @@ public class Order extends BaseEntity {
     private OrderStatus orderStatus;
 
     private String canceledReason;
-    private LocalDateTime deletedAt;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItem> orderItems = new ArrayList<>();
 
     public Order(Long customerId, Long totalAmount) {
         this.orderNumber = UUID.randomUUID().toString();// 주문번호 자동 생성
@@ -51,6 +55,10 @@ public class Order extends BaseEntity {
 
     public void refund(String reason) {
         this.orderStatus = OrderStatus.REFUNDED;
-        this.canceledReason = reason;
+    }
+
+    public void addOrderItem(OrderItem item) {
+        this.orderItems.add(item);
+        item.assignOrder(this);
     }
 }

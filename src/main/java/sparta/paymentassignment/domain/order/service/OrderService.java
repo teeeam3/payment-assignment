@@ -5,10 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sparta.paymentassignment.domain.order.Order;
-import sparta.paymentassignment.domain.order.dto.CreateOrderRequest;
-import sparta.paymentassignment.domain.order.dto.CreateOrderResponse;
-import sparta.paymentassignment.domain.order.dto.OrderDetailResponse;
-import sparta.paymentassignment.domain.order.dto.OrderSummaryResponse;
+import sparta.paymentassignment.domain.order.OrderItem;
+import sparta.paymentassignment.domain.order.dto.*;
 import sparta.paymentassignment.domain.order.repository.OrderRepository;
 import sparta.paymentassignment.exception.InvalidOrderAmountException;
 import sparta.paymentassignment.exception.OrderNotFoundException;
@@ -22,14 +20,33 @@ public class OrderService {
     @Transactional
     public CreateOrderResponse createOrder(CreateOrderRequest request) {
 
-        if (request.getTotalAmount() == null || request.getTotalAmount() <= 0) {
-            throw new InvalidOrderAmountException(request.getTotalAmount());
+        if (request.getItems() == null || request.getItems().isEmpty()) {
+            throw new InvalidOrderAmountException(0L);
+        }
+
+        long totalAmount = request.getItems().stream()
+                .mapToLong(item -> item.getPrice() * item.getQuantity())
+                .sum();
+
+        if (totalAmount <= 0) {
+            throw new InvalidOrderAmountException(totalAmount);
         }
 
         Order order = new Order(
                 request.getCustomerId(),
-                request.getTotalAmount()
+                totalAmount
         );
+
+        request.getItems().forEach(itemRequest -> {
+            OrderItem orderItem = new OrderItem(
+                    itemRequest.getProductId(),
+                    itemRequest.getProductName(),
+                    itemRequest.getPrice(),
+                    itemRequest.getQuantity()
+            );
+
+            order.addOrderItem(orderItem);
+        });
 
         Order savedOrder = orderRepository.save(order);
 
@@ -63,14 +80,23 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
 
+        List<OrderItemResponse> items = order.getOrderItems().stream()
+                .map(item -> new OrderItemResponse(
+                        item.getProductId(),
+                        item.getProductName(),
+                        item.getPrice(),
+                        item.getQuantity()
+                ))
+                .toList();
+
         return new OrderDetailResponse(
                 order.getId(),
                 order.getOrderNumber(),
                 order.getCustomerId(),
                 order.getTotalAmount(),
                 order.getOrderStatus(),
-                order.getCreatedAt()   // BaseEntity 기준
+                order.getCreatedAt(),
+                items
         );
-
     }
 }
