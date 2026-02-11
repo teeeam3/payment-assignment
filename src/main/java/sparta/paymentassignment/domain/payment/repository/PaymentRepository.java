@@ -34,6 +34,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     @Query("select p.totalAmount from Payment p where p.portonePaymentId=:portonePaymentId")
     BigDecimal findTotalAmountByPortonePaymentId(String portonePaymentId);
 
-    @Query("select o.customerId from Payment p join fetch Order o on p.orderId = o.id where p.orderId = :orderId")
+    @Query("select o.customerId from Payment p join Order o on p.orderId = o.id where p.orderId = :orderId")
     Long findUserIdByOrderId(@Param("orderId") Long orderId);
 }
