@@ -1,15 +1,15 @@
-package sparta.paymentassignment.product.service;
+package sparta.paymentassignment.domain.product.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import sparta.paymentassignment.product.dto.ProductDetailResponse;
-import sparta.paymentassignment.product.dto.ProductSummaryResponse;
-import sparta.paymentassignment.product.entity.Product;
-import sparta.paymentassignment.product.entity.ProductStatus;
-import sparta.paymentassignment.product.excption.InvalidProductStatusException;
-import sparta.paymentassignment.product.excption.ProductNotFoundException;
-import sparta.paymentassignment.product.repository.ProductRepository;
+import sparta.paymentassignment.domain.product.dto.ProductDetailResponse;
+import sparta.paymentassignment.domain.product.dto.ProductSummaryResponse;
+import sparta.paymentassignment.domain.product.entity.Product;
+import sparta.paymentassignment.domain.product.entity.ProductStatus;
+import sparta.paymentassignment.domain.product.excption.InvalidProductStatusException;
+import sparta.paymentassignment.domain.product.excption.ProductNotFoundException;
+import sparta.paymentassignment.domain.product.repository.ProductRepository;
 
 import java.util.List;
 
@@ -52,5 +52,13 @@ public class ProductService {
                 product.getStatus(),
                 product.getCategory()
         );
+    }
+
+    @Transactional
+    public void refillProduct(Long productId, Integer quantity) {
+      Product product = productRepository.findById(productId)
+          .orElseThrow(() -> new ProductNotFoundException(productId));
+      int newStock = product.getStock() + quantity;
+      product.updateStock(newStock);
     }
 }

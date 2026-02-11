@@ -91,7 +91,7 @@ public class PaymentService {
       return paymentRepository.findByPortonePaymentIdWithLock(portonePaymentId);
   }
 
-  public Long findUserIdByOrderId(Long orderId) {
-    return paymentRepository.findUserIdByOrderId(orderId);
+  public Optional<Payment> findByPortonePaymentId(String portonePaymentId) {
+      return paymentRepository.findByPortonePaymentId(portonePaymentId);
   }
 }

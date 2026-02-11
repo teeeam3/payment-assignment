@@ -8,6 +8,7 @@ import sparta.paymentassignment.domain.order.Order;
 import sparta.paymentassignment.domain.order.OrderItem;
 import sparta.paymentassignment.domain.order.dto.*;
 import sparta.paymentassignment.domain.order.repository.OrderRepository;
+import sparta.paymentassignment.domain.product.service.ProductService;
 import sparta.paymentassignment.exception.InvalidOrderAmountException;
 import sparta.paymentassignment.exception.OrderNotFoundException;
 
@@ -16,6 +17,7 @@ import sparta.paymentassignment.exception.OrderNotFoundException;
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final ProductService productService;
 
     @Transactional
     public CreateOrderResponse createOrder(CreateOrderRequest request) {
@@ -99,4 +101,19 @@ public class OrderService {
                 items
         );
     }
+
+  public Long findUserIdByOrderId(Long orderId) {
+    return orderRepository.findUserIdByOrderId(orderId).orElseThrow(() -> new OrderNotFoundException(orderId));
+  }
+
+  @Transactional
+  public void restoreStock(Long orderId) {
+    Order order = orderRepository.findById(orderId)
+        .orElseThrow(() -> new OrderNotFoundException(orderId));
+    order.getOrderItems().forEach(orderItem -> {
+      Long productId = orderItem.getProductId();
+      Integer quantity = orderItem.getQuantity();
+      productService.refillProduct(productId, quantity);
+    });
+  }
 }

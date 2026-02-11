@@ -1,4 +1,4 @@
-package sparta.paymentassignment.product.entity;
+package sparta.paymentassignment.domain.product.entity;
 
 public enum ProductStatus {
     ACTIVE, // 판매중

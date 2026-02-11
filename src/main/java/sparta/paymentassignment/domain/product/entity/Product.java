@@ -1,4 +1,4 @@
-package sparta.paymentassignment.product.entity;
+package sparta.paymentassignment.domain.product.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -41,5 +41,7 @@ public class Product {
         this.category = category;
     }
 
-
+  public void updateStock(int newStock) {
+    this.stock = newStock;
+  }
 }

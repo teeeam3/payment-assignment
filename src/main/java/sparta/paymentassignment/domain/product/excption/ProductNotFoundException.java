@@ -1,4 +1,4 @@
-package sparta.paymentassignment.product.excption;
+package sparta.paymentassignment.domain.product.excption;
 
 public class ProductNotFoundException extends RuntimeException {
     public ProductNotFoundException(Long productId) {
