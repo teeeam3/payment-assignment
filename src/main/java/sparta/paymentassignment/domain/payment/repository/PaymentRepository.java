@@ -1,6 +1,9 @@
 package sparta.paymentassignment.domain.payment.repository;
 
+import jakarta.persistence.LockModeType;
+import java.math.BigDecimal;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import sparta.paymentassignment.domain.payment.Payment;
@@ -19,4 +22,18 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             "WHERE o.customerId = :customerId " +
             "ORDER BY p.id DESC")
     List<Payment> findAllByCustomerId(@Param("customerId") Long customerId);
+
+    // PortoneId를 기준으로하는 주문 총 결제 금액 조회
+    @Query("select p.totalAmount from Payment p where p.portonePaymentId=:portonePaymentId")
+    BigDecimal getTotalAmount(@Param("portonePaymentId") String portonePaymentId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select p from Payment p where p.portonePaymentId=:portonePaymentId")
+    Optional<Payment> findByPortonePaymentIdWithLock(@Param("portonePaymentId") String portonePaymentId);
+
+    @Query("select p.totalAmount from Payment p where p.portonePaymentId=:portonePaymentId")
+    BigDecimal findTotalAmountByPortonePaymentId(String portonePaymentId);
+
+    @Query("select o.customerId from Payment p join Order o on p.orderId = o.id where p.orderId = :orderId")
+    Long findUserIdByOrderId(@Param("orderId") Long orderId);
 }

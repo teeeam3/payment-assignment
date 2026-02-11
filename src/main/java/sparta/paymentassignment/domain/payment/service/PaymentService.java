@@ -1,5 +1,7 @@
 package sparta.paymentassignment.domain.payment.service;
 
+import java.math.BigDecimal;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +13,7 @@ import sparta.paymentassignment.domain.payment.dto.PaymentRequest;
 import sparta.paymentassignment.domain.payment.dto.PaymentResponse;
 import sparta.paymentassignment.domain.payment.dto.PortOneResponse;
 import sparta.paymentassignment.domain.payment.repository.PaymentRepository;
+import sparta.paymentassignment.domain.point.service.PointService;
 import sparta.paymentassignment.exception.PaymentAmountMismatchException;
 import sparta.paymentassignment.exception.PaymentNotFoundException;
 
@@ -79,4 +82,16 @@ public class PaymentService {
                 .map(PaymentDetail::from)
                 .toList();
     }
+
+  public BigDecimal getTotalAmount(String portonePaymentId) {
+    return paymentRepository.findTotalAmountByPortonePaymentId(portonePaymentId);
+  }
+
+  public Optional<Payment> findByPortonePaymentIdWithLock(String portonePaymentId) {
+      return paymentRepository.findByPortonePaymentIdWithLock(portonePaymentId);
+  }
+
+  public Long findUserIdByOrderId(Long orderId) {
+    return paymentRepository.findUserIdByOrderId(orderId);
+  }
 }

@@ -11,6 +11,7 @@ import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import sparta.paymentassignment.common.entity.BaseEntity;
@@ -39,6 +40,7 @@ public class Point extends BaseEntity {
   @Column(name = "order_id")
   private Long orderId;
 
+  @Builder
   private Point(BigDecimal points, PointType pointType, LocalDateTime expired_at, Long userId,
       Long orderId) {
     this.points = points;
@@ -49,7 +51,7 @@ public class Point extends BaseEntity {
   }
 
   // 처음 포인트는 100씩 줌
-  public static Point createPoint(Long userId) {
+  public static Point createInitialPoint(Long userId) {
     return new Point(BigDecimal.valueOf(100L), PointType.ADJUSTED_PLUS,
         LocalDateTime.now().plusDays(30L), userId, null);
   }

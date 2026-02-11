@@ -1,5 +1,6 @@
 package sparta.paymentassignment.domain.user.service;
 
+import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -83,5 +84,12 @@ public class UserService {
                 user.getPhone(),
                 user.getPointBalance()
         );
+    }
+
+    @Transactional
+    public int updatePointByUserId(Long userId, BigDecimal point) {
+      BigDecimal currentPoint = userRepository.findPointByUserId(userId);
+      BigDecimal newPoint = currentPoint.add(point);
+      return userRepository.updatePointByUserId(userId, newPoint);
     }
 }
