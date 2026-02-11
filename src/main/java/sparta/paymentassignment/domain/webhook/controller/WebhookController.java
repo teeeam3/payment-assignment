@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
+import sparta.paymentassignment.domain.webhook.TransactionType;
 import sparta.paymentassignment.domain.webhook.dto.PortoneWebhookPayload;
 import sparta.paymentassignment.domain.webhook.service.WebhookService;
 import sparta.paymentassignment.domain.webhook.util.PortOneWebhookVerifier;
@@ -76,7 +77,23 @@ public class WebhookController {
         payload.getData().getStoreId()
     );
 
-    webhookService.processWebhook(webhookId, payload.getData().getPaymentId(), payload.getType());
+    String type = payload.getType();
+    TransactionType transactionType = null;
+
+    if (type.contains("Paid")) {
+      transactionType = TransactionType.PAID;
+    }else if(type.contains("Cancelled")) {
+      transactionType = TransactionType.CANCELLED;
+    }else if(type.contains("Failed")) {
+      transactionType = TransactionType.FAILED;
+    }
+
+    if(transactionType.equals(TransactionType.PAID)) {
+      webhookService.processPaid(webhookId, payload.getData().getPaymentId());
+    } else if (transactionType.equals(TransactionType.CANCELLED) || transactionType.equals(
+        TransactionType.FAILED)) {
+      webhookService.processRefund(webhookId, payload.getData().getPaymentId());
+    }
 
     // 있으면 포인트 적립, 멤버십 등급 갱신
     return ResponseEntity.ok().build();

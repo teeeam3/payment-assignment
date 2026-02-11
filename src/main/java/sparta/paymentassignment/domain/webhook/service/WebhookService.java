@@ -7,9 +7,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import sparta.paymentassignment.domain.order.service.OrderService;
 import sparta.paymentassignment.domain.payment.Payment;
 import sparta.paymentassignment.domain.payment.PaymentStatus;
-import sparta.paymentassignment.domain.payment.repository.PaymentRepository;
 import sparta.paymentassignment.domain.payment.service.PaymentService;
 import sparta.paymentassignment.domain.point.service.PointService;
 import sparta.paymentassignment.domain.webhook.Webhook;
@@ -20,7 +20,6 @@ import sparta.paymentassignment.domain.webhook.repository.WebhookRepository;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 @Slf4j
 public class WebhookService {
 
@@ -28,9 +27,67 @@ public class WebhookService {
   private final WebhookRepository webhookRepository;
   private final PaymentService paymentService;
   private final PointService pointService;
+  private final OrderService orderService;
+
+  // 결제가 승인되었을 때의 웹훅 처리
+  public void processPaid(String webhookId, String paymentId) {
+    // 멱등성 체크 : webhook 테이블에 저장되는 webhookId는 유일함을 활용
+    // 이미 webhook 테이블에 존재하면 아무처리 안함
+    if (webhookRepository.existsByWebhookId(webhookId)) {
+      log.info("이미 처리된 웹훅입니다: {}", webhookId);
+      return;
+    }
+
+    // 외부 API 검증
+    try {
+      verifyPayment(paymentId);
+    } catch (Exception e) {
+      log.error("결제 검증 실패: {}",e.getMessage());
+      // 보상 트랜잭션 시작
+      executeCompensationTransaction(paymentId);
+      throw e;
+    }
+
+    // 실제 비즈니스 로직 및 DB 업데이트
+    executeApproval(webhookId, paymentId);
+  }
+
+  // 결제 검증 실패 시 실행되는 보상 트랜잭션
+  @Transactional
+  public void executeCompensationTransaction(String paymentId) {
+    Payment payment = paymentService.findByPortonePaymentId(paymentId)
+        .orElseThrow(() -> new IllegalArgumentException("결제 정보를 찾을 수 없습니다."));
+
+    // 재고 복구
+    // 주문 생성 시 차감했던 재고를 다시 더해준다.
+    orderService.restoreStock(payment.getOrderId());
+  }
+
+  // 실제 DB 상태를 변경 시킴
+  @Transactional
+  public void executeApproval(String webhookId, String paymentId) {
+    // 비관적 락을 통해 엔티티 조회
+    Payment payment = paymentService.findByPortonePaymentIdWithLock(paymentId)
+        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 결제 건입니다."));
+
+    if(payment.getPaymentStatus().equals(PaymentStatus.APPROVED)) {
+      webhookRepository.save(new Webhook(webhookId, WebhookStatus.FINISHED));
+      return;
+    }
+
+    // payment를 approved 상태로 변경
+    payment.approve();
+
+    // 웹훅 기록 저장
+    webhookRepository.save(new Webhook(webhookId, WebhookStatus.FINISHED));
+
+    // 주문 도메인에서 userId를 뽑아내고 해당 user의 포인트 적립
+    Long userId = orderService.findUserIdByOrderId(payment.getOrderId());
+    pointService.registPoint(userId, payment.getOrderId(), payment.getTotalAmount());
+  }
 
   // 웹훅에서 결제정보 받았을때 결제가 진짜로 되었는지 포트원 조회
-  public void verifyPayment(String portonePaymentId) {
+  private void verifyPayment(String portonePaymentId) {
     portOneClient.getPayment()
         .getPayment(portonePaymentId)
         // 반환 값을 받아서 사용하고, 값을 반환하지 않는 콜백 (consumer)
@@ -49,46 +106,8 @@ public class WebhookService {
         }).join();
   }
 
-
   @Transactional
-  public void processWebhook(String webhookId, String paymentId, String type) {
-    // 결제가 승인되었을 때의 웹훅 이벤트
-    if(!"Transaction.Paid".equals(type)) {
-      log.info("처리 대상이 아닌 웹훅 이벤트입니다: {}", type);
-      return;
-    }
+  public void processRefund(String webhookId, String paymentId) {
 
-    // 멱등성 체크 : webhook 테이블에 저장되는 webhookId는 유일함을 활용
-    // 이미 webhook 테이블에 존재하면 아무처리 안함
-    if (webhookRepository.existsByWebhookId(webhookId)) {
-      log.info("이미 처리된 웹훅 입니다: {}", webhookId);
-      return;
-    }
-
-    // 결제 엔티티 조회 및 비즈니스 상태 체크
-    // 클라이언트 응답을 통해 payment 상태가 APPROVED 상태로 변경되었다면 로직 종료
-    Payment payment = paymentService.findByPortonePaymentIdWithLock(paymentId)
-        .orElseThrow(() -> new IllegalArgumentException("존재하지 않은 paymentId로 payment 얻으려 함"));
-    if(payment.getPaymentStatus()== PaymentStatus.APPROVED){
-      log.info("이미 결제 완료 처리된 주문입니다.");
-      webhookRepository.save(new Webhook(webhookId, WebhookStatus.FINISHED));
-      return;
-    }
-
-    // 신규 웹훅 처리 시작 기록
-    Webhook webhook = webhookRepository.save(new Webhook(webhookId, WebhookStatus.PROCESSING));
-
-    // 포트원 API를 사용하여 웹훅에서 받은 결제 내용과 실제 결제 내용 검증
-    verifyPayment(paymentId);
-
-    // 비즈니스 로직 및 상태 확정
-    payment.approve();
-
-    // 포인트 적립, 멤버십 갱신 진행
-    Long userId = paymentService.findUserIdByOrderId(payment.getOrderId());
-    pointService.registPoint(userId, payment.getOrderId(), payment.getTotalAmount());
-
-    // 웹훅 처리 완료
-    webhook.updateStatus(WebhookStatus.FINISHED);
   }
 }

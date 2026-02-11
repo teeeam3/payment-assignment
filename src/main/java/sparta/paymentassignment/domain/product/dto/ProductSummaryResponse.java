@@ -1,4 +1,4 @@
-package sparta.paymentassignment.product.dto;
+package sparta.paymentassignment.domain.product.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,6 +1,6 @@
-package sparta.paymentassignment.product.excption;
+package sparta.paymentassignment.domain.product.excption;
 
-import sparta.paymentassignment.product.entity.ProductStatus;
+import sparta.paymentassignment.domain.product.entity.ProductStatus;
 
 public class  InvalidProductStatusException extends RuntimeException {
     public InvalidProductStatusException(ProductStatus status) {

@@ -1,4 +1,4 @@
-package sparta.paymentassignment.product.controller;
+package sparta.paymentassignment.domain.product.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -7,10 +7,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import sparta.paymentassignment.common.dto.ApiResponse;
-import sparta.paymentassignment.product.dto.ProductDetailResponse;
-import sparta.paymentassignment.product.dto.ProductSummaryResponse;
-import sparta.paymentassignment.product.entity.Product;
-import sparta.paymentassignment.product.service.ProductService;
+import sparta.paymentassignment.domain.product.dto.ProductDetailResponse;
+import sparta.paymentassignment.domain.product.dto.ProductSummaryResponse;
+import sparta.paymentassignment.domain.product.service.ProductService;
 
 import java.util.List;
 
