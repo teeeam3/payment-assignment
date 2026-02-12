@@ -24,8 +24,6 @@ import sparta.paymentassignment.exception.PaymentNotFoundException;
 import sparta.paymentassignment.domain.product.entity.Product;
 import sparta.paymentassignment.domain.product.repository.ProductRepository;
 
-
-import java.math.BigDecimal;
 import java.util.List;
 @Slf4j
 @Service
@@ -51,12 +49,12 @@ public class PaymentService {
         }
 
         // 2. [포인트 처리] 포인트 사용 로직 호출 및 최종 결제 금액 계산
-        if (request.getUsePoint() > 0) {
+        if (request.getUsePoint().compareTo(BigDecimal.ZERO) > 0) {
             pointService.usePoint(order.getCustomerId(),order.getId(), request.getUsePoint());
         }
 
         // 실제 결제 금액 = 총 금액 - 사용 포인트
-        BigDecimal finalAmount = request.getAmount().subtract(BigDecimal.valueOf(request.getUsePoint()));
+        BigDecimal finalAmount = request.getAmount().subtract(request.getUsePoint());
 
         // 3. 결제 엔티티 생성 (최종 금액 반영) 및 저장
         Payment payment = Payment.create(finalAmount, request.getOrderId(), request.getOrderNumber(), request.getUsePoint());
@@ -105,7 +103,7 @@ public class PaymentService {
             pointService.cancelPoint(order.getCustomerId(), order.getId());
 
             // 4.사용 포인트 복구
-            if (payment.getUsedPoint() != null && payment.getUsedPoint() > 0) {
+            if (payment.getUsedPoint() != null && payment.getUsedPoint().compareTo(BigDecimal.ZERO) > 0) {
                 pointService.restorePoint(order.getCustomerId(), order.getId(), payment.getUsedPoint());
             }
 
