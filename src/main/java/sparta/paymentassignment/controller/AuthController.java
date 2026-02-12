@@ -1,4 +1,4 @@
-package sparta.paymentassignment.domain.user.controller;
+package sparta.paymentassignment.controller;
 
 import sparta.paymentassignment.common.dto.ApiResponse;
 import sparta.paymentassignment.domain.user.dto.*;

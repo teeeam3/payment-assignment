@@ -22,11 +22,14 @@ public class User extends BaseEntity {
     @Column(unique = true)
     private String email;
     private String password;
-    private UserRole role;
-    @Column(nullable = false)
-    private Long pointBalance = 0L;
 
-    public User(String name, String phone, String email, String password, UserRole role, Long pointBalance) {
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
+
+    @Column(nullable = false)
+    private BigDecimal pointBalance;
+
+    public User(String name, String phone, String email, String password, UserRole role, BigDecimal pointBalance) {
         this.name = name;
         this.phone = phone;
         this.email = email;

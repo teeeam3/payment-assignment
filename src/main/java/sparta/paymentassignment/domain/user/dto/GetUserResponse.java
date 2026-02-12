@@ -2,15 +2,17 @@ package sparta.paymentassignment.domain.user.dto;
 
 import lombok.Getter;
 
+import java.math.BigDecimal;
+
 @Getter
 public class GetUserResponse {
     private final String email;
     private final String customerUid;
     private final String name;
     private final String phone;
-    private final Long pointBalance;
+    private final BigDecimal pointBalance;
 
-    public GetUserResponse(String email, String customerUid, String name, String phone, Long pointBalance) {
+    public GetUserResponse(String email, String customerUid, String name, String phone, BigDecimal pointBalance) {
         this.email = email;
         this.customerUid = customerUid;
         this.name = name;
