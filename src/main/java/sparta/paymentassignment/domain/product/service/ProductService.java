@@ -61,4 +61,12 @@ public class ProductService {
       int newStock = product.getStock() + quantity;
       product.updateStock(newStock);
     }
+
+    public Product getProductForOrderItem (Long productId, int quantity) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException(productId));
+
+        product.validateStock(quantity);
+        return product;
+    }
 }

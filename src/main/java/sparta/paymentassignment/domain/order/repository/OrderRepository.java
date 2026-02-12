@@ -8,6 +8,6 @@ import sparta.paymentassignment.domain.order.Order;
 public interface OrderRepository extends JpaRepository<Order, Long> {
     Optional<Order> findByOrderNumber(String orderNumber);
 
-  @Query("select o.customerId from Order o where o.id=:orderId")
+  @Query("select o.userId from Order o where o.id=:orderId")
   Optional<Long> findUserIdByOrderId(Long orderId);
 }

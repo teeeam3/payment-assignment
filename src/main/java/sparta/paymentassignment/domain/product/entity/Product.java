@@ -44,7 +44,14 @@ public class Product {
         this.stock += quantity;
     }
 
-  public void updateStock(int newStock) {
+    public void updateStock(int newStock) {
     this.stock = newStock;
-  }
+    }
+
+    public void validateStock(int quantity) {
+        if (quantity > this.stock) {
+            throw new RuntimeException("주문 수량이 재고 보다 큼");
+        }
+    }
+
 }

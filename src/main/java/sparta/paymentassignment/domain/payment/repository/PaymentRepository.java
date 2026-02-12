@@ -20,7 +20,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     // Payment 테이블의 orderId와 Order 테이블의 id를 조인하여 userId를 필터링
     @Query("SELECT p FROM Payment p " +
             "JOIN Order o ON p.orderId = o.id " +
-            "WHERE o.customerId = :customerId " +
+            "WHERE o.userId = :customerId " +
             "ORDER BY p.id DESC")
     List<Payment> findAllByCustomerId(@Param("customerId") Long customerId);
 

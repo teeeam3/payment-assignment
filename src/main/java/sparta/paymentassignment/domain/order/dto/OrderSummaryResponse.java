@@ -12,4 +12,5 @@ public class OrderSummaryResponse {
     private final String orderNumber;
     private final Long totalAmount;
     private final OrderStatus status;
+    private final String currency = "krw";
 }

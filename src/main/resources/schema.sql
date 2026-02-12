@@ -1,9 +1,9 @@
-CREATE TABLE membership_policy (
-                                   id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                                   grade VARCHAR(20) NOT NULL UNIQUE,
-                                   min_amount DECIMAL(19,2) NOT NULL,
-                                   max_amount DECIMAL(19,2) NOT NULL,
-                                   reward_rate DECIMAL(5,4) NOT NULL,
-                                   created_at TIMESTAMP NOT NULL,
-                                   updated_at TIMESTAMP NOT NULL
-);
+-- CREATE TABLE membership_policy (
+--                                    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+--                                    grade VARCHAR(20) NOT NULL UNIQUE,
+--                                    min_amount DECIMAL(19,2) NOT NULL,
+--                                    max_amount DECIMAL(19,2) NOT NULL,
+--                                    reward_rate DECIMAL(5,4) NOT NULL,
+--                                    created_at TIMESTAMP NOT NULL,
+--                                    updated_at TIMESTAMP NOT NULL
+-- );

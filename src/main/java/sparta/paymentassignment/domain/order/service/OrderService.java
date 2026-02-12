@@ -1,5 +1,6 @@
 package sparta.paymentassignment.domain.order.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -8,7 +9,10 @@ import sparta.paymentassignment.domain.order.Order;
 import sparta.paymentassignment.domain.order.OrderItem;
 import sparta.paymentassignment.domain.order.dto.*;
 import sparta.paymentassignment.domain.order.repository.OrderRepository;
+import sparta.paymentassignment.domain.product.dto.ProductDetailResponse;
+import sparta.paymentassignment.domain.product.entity.Product;
 import sparta.paymentassignment.domain.product.service.ProductService;
+import sparta.paymentassignment.domain.user.service.UserService;
 import sparta.paymentassignment.exception.InvalidOrderAmountException;
 import sparta.paymentassignment.exception.OrderNotFoundException;
 
@@ -18,37 +22,45 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final ProductService productService;
+    private final UserService userService;
 
     @Transactional
-    public CreateOrderResponse createOrder(CreateOrderRequest request) {
+    public CreateOrderResponse createOrder(CreateOrderRequest request, String email) {
+        // TODO
+        Long userId = userService.getUser(email).getId();
 
         if (request.getItems() == null || request.getItems().isEmpty()) {
             throw new InvalidOrderAmountException(0L);
         }
 
-        long totalAmount = request.getItems().stream()
-                .mapToLong(item -> item.getPrice() * item.getQuantity())
-                .sum();
+        Order order = new Order(userId, 0L);
+        // TODO
+        Long totalAmount = 0L;
+
+        for (OrderItemRequest item : request.getItems()) {
+            Product productForOrderItem = productService.getProductForOrderItem(item.getProductId(), item.getQuantity());
+
+            // TODO
+            Long subTotalPrice = productForOrderItem.getPrice() * item.getQuantity();
+            totalAmount += subTotalPrice;
+
+            OrderItem orderItem = new OrderItem(
+                    productForOrderItem.getId(),
+                    productForOrderItem.getName(),
+                    productForOrderItem.getPrice(),
+                    item.getQuantity(),
+                    subTotalPrice
+            );
+
+            order.addOrderItem(orderItem);
+        }
 
         if (totalAmount <= 0) {
             throw new InvalidOrderAmountException(totalAmount);
         }
 
-        Order order = new Order(
-                request.getCustomerId(),
-                totalAmount
-        );
-
-        request.getItems().forEach(itemRequest -> {
-            OrderItem orderItem = new OrderItem(
-                    itemRequest.getProductId(),
-                    itemRequest.getProductName(),
-                    itemRequest.getPrice(),
-                    itemRequest.getQuantity()
-            );
-
-            order.addOrderItem(orderItem);
-        });
+        // TODO
+        order.setTotalAmount(totalAmount);
 
         Order savedOrder = orderRepository.save(order);
 
@@ -94,7 +106,7 @@ public class OrderService {
         return new OrderDetailResponse(
                 order.getId(),
                 order.getOrderNumber(),
-                order.getCustomerId(),
+                order.getUserId(),
                 order.getTotalAmount(),
                 order.getOrderStatus(),
                 order.getCreatedAt(),

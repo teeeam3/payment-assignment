@@ -1,13 +1,19 @@
 spring:
   sql:
     init:
-      mode: always   # always / embedded / never
+      mode: never  # always / embedded / never
       data-locations: classpath:data.sql
       schema-locations: classpath:schema.sql
 
+  datasource:
+    url: jdbc:mysql://localhost:3306/payment_db
+    username: root
+    password: ${MYSQL_ROOT_PASSWORD:12345678}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
   jpa:
     hibernate:
-      ddl-auto: update   # create / update / validate / none
+      ddl-auto: create   # create / update / validate / none
   application:
     name: payment-demo
 
@@ -36,12 +42,14 @@ server:
 portone:
   api:
     base-url: https://api.portone.io
-    secret: ${PORTONE_API_SECRET:your-api-secret}
+    secret: ${PORTONE_API_SECRET:}
   store:
-    id: ${PORTONE_STORE_ID:your-store-id}
+    id: ${PORTONE_STORE_ID:}
   channel:
-    kg-inicis: ${PORTONE_CHANNEL_KG:your-kg-inicis-channel-key}
+    kg-inicis: ${PORTONE_CHANNEL_KG:}
     toss: ${PORTONE_CHANNEL_TOSS:your-toss-channel-key}
+  webhook:
+    secret: ${PORTONE_WEBHOOK_SECRET:UE9SVE9ORV9XRUJIT09LX1NFQ1JFVFBPUlRPTkVfV0VCSE9PS19TRUNSRVRQT1JUT05FX1dFQkhPT0tfU0VDUkVUUE9SVE9ORV9XRUJIT09LX1NFQ1JFVA==}
 # JWT Configuration
 jwt:
   secret: ${JWT_SECRET:commercehub-secret-key-for-demo-please-change-this-in-production-environment}

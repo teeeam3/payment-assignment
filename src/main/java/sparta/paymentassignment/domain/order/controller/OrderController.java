@@ -3,9 +3,11 @@ package sparta.paymentassignment.domain.order.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import sparta.paymentassignment.common.dto.ApiResponse;
 
+import java.security.Principal;
 import java.util.List;
 import sparta.paymentassignment.domain.order.dto.CreateOrderRequest;
 import sparta.paymentassignment.domain.order.dto.CreateOrderResponse;
@@ -16,16 +18,17 @@ import sparta.paymentassignment.domain.order.service.OrderService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/orders")
+@RequestMapping("/api/orders")
 public class OrderController {
 
     private final OrderService orderService;
     // 출력용 dto 설계 Result
     @PostMapping
     public ResponseEntity<ApiResponse<OrderCreateResult>> createOrder(
-            @Valid @RequestBody CreateOrderRequest request
+            @Valid @RequestBody CreateOrderRequest request,
+            Principal principal
     ) {
-        CreateOrderResponse response = orderService.createOrder(request);
+        CreateOrderResponse response = orderService.createOrder(request, principal.getName());
 
         return ResponseEntity.status(201).body(
                 ApiResponse.success(

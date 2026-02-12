@@ -99,6 +99,7 @@ public class UserService {
         String customerUid = "CUST_" + user.getId() + "_" + rand;
 
         return new GetUserResponse(
+                user.getId(),
                 user.getEmail(),
                 customerUid,
                 user.getName(),
