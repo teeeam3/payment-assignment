@@ -18,6 +18,7 @@ import sparta.paymentassignment.domain.payment.dto.PaymentResponse;
 import sparta.paymentassignment.domain.payment.dto.PortOneResponse;
 import sparta.paymentassignment.domain.payment.repository.PaymentRepository;
 import sparta.paymentassignment.domain.point.service.PointService;
+import sparta.paymentassignment.domain.user.service.UserMembershipService;
 import sparta.paymentassignment.exception.PaymentAmountMismatchException;
 import sparta.paymentassignment.exception.PaymentNotFoundException;
 import sparta.paymentassignment.domain.product.entity.Product;
@@ -33,7 +34,7 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final PortOneClient portOneClient; // 공통 설정 참고
     private final PointService pointService;   // 포인트 적립 담당 연동
-    private final MembershipService membershipService; // 멤버십 갱신 담당 연동
+    private final UserMembershipService membershipService; // 멤버십 갱신 담당 연동
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
 
@@ -87,7 +88,8 @@ public class PaymentService {
             pointService.registPoint(payment.getId(), payment.getOrderId(), payment.getTotalAmount());
 
             // 5. [멤버십 등급 갱신] 총 결제 금액 합산 및 등급 업데이트
-            membershipService.refreshGrade(payment.getOrderId());
+            Long userId = payment.getUser().getId();
+            membershipService.updateMembership(userId);
 
         } catch (Exception e) {
             log.error("결제 확정 중 오류 발생, 보상 트랜잭션 시작: {}", e.getMessage());

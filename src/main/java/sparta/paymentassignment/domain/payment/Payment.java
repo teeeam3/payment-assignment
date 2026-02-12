@@ -56,22 +56,22 @@ public class Payment extends BaseEntity {
     this.paidAt = paidAt;
     this.refundedAt = refundedAt;
     this.orderId = orderId;
-      this.usedPoint = usedPoint;
+    this.usedPoint = usedPoint;
   }
 
-  public static Payment create(BigDecimal totalAmount, Long orderId, String orderNumber) {
+  public static Payment create(BigDecimal totalAmount, Long orderId, String orderNumber, Long usedPoint) {
 
     if (totalAmount.compareTo(BigDecimal.ZERO) <= 0) {
       throw new IllegalArgumentException("금액은 0보다 커야 합니다");
     }
 
-    if (orderId == null || orderNumber==null) {
+    if (orderId == null || orderNumber == null) {
       throw new IllegalArgumentException("주문은 반드시 존재해야 합니다.");
     }
 
     StringBuilder portonePaymentId = new StringBuilder();
     portonePaymentId.append("payment-").append(orderNumber)
-        .append("-" + LocalDateTime.now());
+            .append("-").append(LocalDateTime.now()); // 불필요한 + 제거
 
     return new Payment(
             portonePaymentId.toString(),
