@@ -46,10 +46,10 @@ public class Payment extends BaseEntity {
   @JoinColumn(name = "user_id")
   private User user;
 
-  private Long usedPoint;
+  private BigDecimal usedPoint;
 
   private Payment(String portonePaymentId, BigDecimal totalAmount, PaymentStatus paymentStatus,
-      LocalDateTime paidAt, LocalDateTime refundedAt, Long orderId,Long usedPoint) {
+      LocalDateTime paidAt, LocalDateTime refundedAt, Long orderId,BigDecimal usedPoint) {
     this.portonePaymentId = portonePaymentId;
     this.totalAmount = totalAmount;
     this.paymentStatus = paymentStatus;
@@ -59,7 +59,7 @@ public class Payment extends BaseEntity {
     this.usedPoint = usedPoint;
   }
 
-  public static Payment create(BigDecimal totalAmount, Long orderId, String orderNumber, Long usedPoint) {
+  public static Payment create(BigDecimal totalAmount, Long orderId, String orderNumber, BigDecimal usedPoint) {
 
     if (totalAmount.compareTo(BigDecimal.ZERO) <= 0) {
       throw new IllegalArgumentException("금액은 0보다 커야 합니다");
