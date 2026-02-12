@@ -40,6 +40,9 @@ public class Product {
         this.status = status;
         this.category = category;
     }
+    public void addStock(int quantity) {
+        this.stock += quantity;
+    }
 
   public void updateStock(int newStock) {
     this.stock = newStock;
