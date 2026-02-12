@@ -8,6 +8,8 @@ import sparta.paymentassignment.domain.user.User;
 import sparta.paymentassignment.domain.user.UserRole;
 import sparta.paymentassignment.domain.user.repository.UserRepository;
 
+import java.math.BigDecimal;
+
 @Component
 @RequiredArgsConstructor
 public class AdminInitRunner implements CommandLineRunner {
@@ -28,7 +30,7 @@ public class AdminInitRunner implements CommandLineRunner {
                 "admin@test.com",
                 passwordEncoder.encode("admin"),
                 UserRole.ADMIN,
-                5000L
+                new BigDecimal(5000)
         );
         userRepository.save(admin);
     }

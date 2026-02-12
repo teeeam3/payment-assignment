@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import sparta.paymentassignment.domain.payment.Payment;
+import sparta.paymentassignment.domain.payment.PaymentStatus;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,4 +34,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     @Query("select p.totalAmount from Payment p where p.portonePaymentId=:portonePaymentId")
     BigDecimal findTotalAmountByPortonePaymentId(String portonePaymentId);
+
+    @Query("SELECT COALESCE(SUM(p.totalAmount), 0) FROM Payment p " +
+            "WHERE p.user.id = :userId AND p.paymentStatus = 'APPROVED' ")
+    BigDecimal sumPaidAmount(Long userId);
 }

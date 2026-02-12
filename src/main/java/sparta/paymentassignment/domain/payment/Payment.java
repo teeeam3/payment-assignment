@@ -1,14 +1,7 @@
 package sparta.paymentassignment.domain.payment;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Index;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -17,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import sparta.paymentassignment.common.entity.BaseEntity;
+import sparta.paymentassignment.domain.user.User;
 import sparta.paymentassignment.exception.InvalidStatusTransitionException;
 
 @Entity
@@ -48,33 +42,36 @@ public class Payment extends BaseEntity {
   @Column(nullable = false, name = "order_id")
   private Long orderId;
 
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id")
+  private User user;
+
   private Long usedPoint;
 
-
-  public Payment(String portonePaymentId, BigDecimal totalAmount, PaymentStatus paymentStatus,
-                 LocalDateTime paidAt, LocalDateTime cancelledAt, Long orderId, Long usedPoint) {
+  private Payment(String portonePaymentId, BigDecimal totalAmount, PaymentStatus paymentStatus,
+      LocalDateTime paidAt, LocalDateTime refundedAt, Long orderId,Long usedPoint) {
     this.portonePaymentId = portonePaymentId;
     this.totalAmount = totalAmount;
     this.paymentStatus = paymentStatus;
     this.paidAt = paidAt;
-    this.cancelledAt = cancelledAt;
+    this.refundedAt = refundedAt;
     this.orderId = orderId;
-    this.usedPoint = usedPoint;
+      this.usedPoint = usedPoint;
   }
 
-  public static Payment create(BigDecimal totalAmount, Long orderId, String orderNumber, Long usedPoint) {
+  public static Payment create(BigDecimal totalAmount, Long orderId, String orderNumber) {
 
-    if (totalAmount.compareTo(BigDecimal.ZERO) < 0) {
+    if (totalAmount.compareTo(BigDecimal.ZERO) <= 0) {
       throw new IllegalArgumentException("금액은 0보다 커야 합니다");
     }
 
-    if (orderId == null || orderNumber == null) {
+    if (orderId == null || orderNumber==null) {
       throw new IllegalArgumentException("주문은 반드시 존재해야 합니다.");
     }
 
     StringBuilder portonePaymentId = new StringBuilder();
     portonePaymentId.append("payment-").append(orderNumber)
-            .append("-").append(LocalDateTime.now());
+        .append("-" + LocalDateTime.now());
 
     return new Payment(
             portonePaymentId.toString(),
