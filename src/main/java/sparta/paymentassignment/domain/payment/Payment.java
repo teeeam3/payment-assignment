@@ -94,9 +94,6 @@ public class Payment extends BaseEntity {
     return this;
   }
 
-
-
-
   private void validateTransition(PaymentStatus target) {
     if (!paymentStatus.canMove(target)) {
       throw new InvalidStatusTransitionException(this.paymentStatus, target);

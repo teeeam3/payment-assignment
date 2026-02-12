@@ -10,9 +10,9 @@ public class PortOneConfig {
 
   @Value("${portone.api.secret}")
   private String apiSecret;
-  @Value("{portone.api.base-url}")
+  @Value("${portone.api.base-url}")
   private String apiBase;
-  @Value("{portone.store.id}")
+  @Value("${portone.store.id}")
   private String storeId;
 
   @Bean
