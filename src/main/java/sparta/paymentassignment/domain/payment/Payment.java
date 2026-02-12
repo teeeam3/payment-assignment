@@ -1,14 +1,7 @@
 package sparta.paymentassignment.domain.payment;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Index;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -17,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import sparta.paymentassignment.common.entity.BaseEntity;
+import sparta.paymentassignment.domain.user.User;
 import sparta.paymentassignment.exception.InvalidStatusTransitionException;
 
 @Entity
@@ -45,6 +39,10 @@ public class Payment extends BaseEntity {
 
   @Column(nullable = false, name = "order_id")
   private Long orderId;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id")
+  private User user;
 
 
   private Payment(String portonePaymentId, BigDecimal totalAmount, PaymentStatus paymentStatus,

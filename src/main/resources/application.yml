@@ -1,4 +1,13 @@
 spring:
+  sql:
+    init:
+      mode: always   # always / embedded / never
+      data-locations: classpath:data.sql
+      schema-locations: classpath:schema.sql
+
+  jpa:
+    hibernate:
+      ddl-auto: update   # create / update / validate / none
   application:
     name: payment-demo
 
