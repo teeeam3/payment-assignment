@@ -64,15 +64,15 @@ public class PointService {
     log.info("포인트 회수 완료: userId={}, orderId={}, amount={}", userId, orderId, point.getPoints());
   }
   @Transactional
-  public void usePoint(Long userId, Long orderId, Long amount) {
-    int updatedRows = userService.retrievePoint(userId, BigDecimal.valueOf(amount));
+  public void usePoint(Long userId, Long orderId, BigDecimal amount) {
+    int updatedRows = userService.retrievePoint(userId, amount);
     if (updatedRows == 0) {
       throw new IllegalArgumentException("포인트 잔액이 부족하거나 유저를 찾을 수 없습니다.");
     }
 
     //포인트 사용 이력 저장
     Point pointHistory = Point.builder()
-            .points(BigDecimal.valueOf(amount))
+            .points(amount)
             .pointType(PointType.USED)
             .orderId(orderId)
             .userId(userId)
@@ -81,13 +81,13 @@ public class PointService {
     pointRepository.save(pointHistory);
   }
   @Transactional
-  public void restorePoint(Long userId, Long orderId, Long amount) {
+  public void restorePoint(Long userId, Long orderId, BigDecimal amount) {
     //유저 포인트 다시 늘려주기
-    userService.updatePointByUserId(userId, BigDecimal.valueOf(amount));
+    userService.updatePointByUserId(userId, amount);
 
     //포인트 이력에 '사용 취소' 기록 남기
     Point pointHistory = Point.builder()
-            .points(BigDecimal.valueOf(amount))
+            .points(amount)
             .pointType(PointType.RESTORED) // 사용 취소 타입
             .orderId(orderId)
             .userId(userId)

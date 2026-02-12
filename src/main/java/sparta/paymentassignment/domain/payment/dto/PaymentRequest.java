@@ -11,5 +11,5 @@ public class PaymentRequest {
     private Long orderId;
     private String orderNumber;
     private BigDecimal amount;
-    private Long usePoint;
+    private BigDecimal usePoint;
 }
