@@ -3,9 +3,11 @@ package sparta.paymentassignment.domain.payment.service;
 import java.math.BigDecimal;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sparta.paymentassignment.domain.order.Order;
+import sparta.paymentassignment.domain.order.OrderItem;
 import sparta.paymentassignment.domain.order.repository.OrderRepository;
 import sparta.paymentassignment.domain.payment.Payment;
 import sparta.paymentassignment.domain.payment.PaymentStatus;
@@ -16,17 +18,15 @@ import sparta.paymentassignment.domain.payment.dto.PaymentResponse;
 import sparta.paymentassignment.domain.payment.dto.PortOneResponse;
 import sparta.paymentassignment.domain.payment.repository.PaymentRepository;
 import sparta.paymentassignment.domain.point.service.PointService;
-import sparta.paymentassignment.exception.OrderNotFoundException;
 import sparta.paymentassignment.exception.PaymentAmountMismatchException;
 import sparta.paymentassignment.exception.PaymentNotFoundException;
-import sparta.paymentassignment.product.entity.Product;
-import sparta.paymentassignment.product.excption.ProductNotFoundException;
-import sparta.paymentassignment.product.repository.ProductRepository;
+import sparta.paymentassignment.domain.product.entity.Product;
+import sparta.paymentassignment.domain.product.repository.ProductRepository;
 
 
 import java.math.BigDecimal;
 import java.util.List;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
@@ -51,7 +51,7 @@ public class PaymentService {
 
         // 2. [포인트 처리] 포인트 사용 로직 호출 및 최종 결제 금액 계산
         if (request.getUsePoint() > 0) {
-            pointService.use(order.getCustomerId(), request.getUsePoint());
+            pointService.usePoint(order.getCustomerId(),order.getId(), request.getUsePoint());
         }
 
         // 실제 결제 금액 = 총 금액 - 사용 포인트
@@ -84,29 +84,36 @@ public class PaymentService {
             payment.approve();
 
             // 4. [연관 포인트 적립] 멤버십 등급별 적립률 적용 로직 호출
-            pointService.accumulate(payment.getOrderId(), payment.getTotalAmount());
+            pointService.registPoint(payment.getId(), payment.getOrderId(), payment.getTotalAmount());
 
             // 5. [멤버십 등급 갱신] 총 결제 금액 합산 및 등급 업데이트
             membershipService.refreshGrade(payment.getOrderId());
 
         } catch (Exception e) {
-            //포트원 취소
+            log.error("결제 확정 중 오류 발생, 보상 트랜잭션 시작: {}", e.getMessage());
+
+            // 1. 포트원 결제 취소
             portOneClient.cancel(paymentId, e.getMessage());
 
-            //포인트 복구: 결제 실패 시 사용했던 포인트를 다시 돌려줌
-            if (payment.getUsedPoint() > 0) {
-                pointService.restore(payment.getOrderId(), payment.getUsedPoint());
+            // 2.주문 정보 조회
+            Order order = orderRepository.findById(payment.getOrderId())
+                    .orElseThrow(() -> new IllegalArgumentException("주문 정보를 찾을 수 없습니다."));
+
+            // 3.적립 취소
+            pointService.cancelPoint(order.getCustomerId(), order.getId());
+
+            // 4.사용 포인트 복구
+            if (payment.getUsedPoint() != null && payment.getUsedPoint() > 0) {
+                pointService.restorePoint(order.getCustomerId(), order.getId(), payment.getUsedPoint());
             }
 
-            // 재고 복구 로직
-            Order order = orderRepository.findById(payment.getOrderId())
-                    .orElseThrow(() -> new IllegalArgumentException("주문 없음"));
-
+            // 5.재고 복구 로직
             for (OrderItem item : order.getOrderItems()) {
                 Product product = productRepository.findById(item.getProductId())
                         .orElseThrow(() -> new IllegalArgumentException("상품 없음 ID: " + item.getProductId()));
                 product.addStock(item.getQuantity());
             }
+
             throw e;
         }
     }

@@ -43,36 +43,48 @@ public class Payment extends BaseEntity {
 
   private LocalDateTime refundedAt;
 
+  private LocalDateTime cancelledAt;
+
   @Column(nullable = false, name = "order_id")
   private Long orderId;
 
+  private Long usedPoint;
 
-  private Payment(String portonePaymentId, BigDecimal totalAmount, PaymentStatus paymentStatus,
-      LocalDateTime paidAt, LocalDateTime refundedAt, Long orderId) {
+
+  public Payment(String portonePaymentId, BigDecimal totalAmount, PaymentStatus paymentStatus,
+                 LocalDateTime paidAt, LocalDateTime cancelledAt, Long orderId, Long usedPoint) {
     this.portonePaymentId = portonePaymentId;
     this.totalAmount = totalAmount;
     this.paymentStatus = paymentStatus;
     this.paidAt = paidAt;
-    this.refundedAt = refundedAt;
+    this.cancelledAt = cancelledAt;
     this.orderId = orderId;
+    this.usedPoint = usedPoint;
   }
 
-  public static Payment create(BigDecimal totalAmount, Long orderId, String orderNumber) {
+  public static Payment create(BigDecimal totalAmount, Long orderId, String orderNumber, Long usedPoint) {
 
-    if (totalAmount.compareTo(BigDecimal.ZERO) <= 0) {
+    if (totalAmount.compareTo(BigDecimal.ZERO) < 0) {
       throw new IllegalArgumentException("금액은 0보다 커야 합니다");
     }
 
-    if (orderId == null || orderNumber==null) {
+    if (orderId == null || orderNumber == null) {
       throw new IllegalArgumentException("주문은 반드시 존재해야 합니다.");
     }
 
     StringBuilder portonePaymentId = new StringBuilder();
     portonePaymentId.append("payment-").append(orderNumber)
-        .append("-" + LocalDateTime.now());
+            .append("-").append(LocalDateTime.now());
 
-    return new Payment(portonePaymentId.toString(), totalAmount, PaymentStatus.PENDING,
-        null, null, orderId);
+    return new Payment(
+            portonePaymentId.toString(),
+            totalAmount,
+            PaymentStatus.PENDING,
+            null,
+            null,
+            orderId,
+            usedPoint
+    );
   }
 
   public Payment approve() {
