@@ -77,25 +77,23 @@ public class WebhookController {
         payload.getData().getStoreId()
     );
 
-    String type = payload.getType();
-    TransactionType transactionType = null;
+    TransactionType transactionType = TransactionType.fromPortOneTransactionType(payload.getType());
+    String paymentId = payload.getData().getPaymentId();
 
-    if (type.contains("Paid")) {
-      transactionType = TransactionType.PAID;
-    }else if(type.contains("Cancelled")) {
-      transactionType = TransactionType.CANCELLED;
-    }else if(type.contains("Failed")) {
-      transactionType = TransactionType.FAILED;
+    switch (transactionType) {
+      case PAID:
+        webhookService.processPaid(webhookId, paymentId);
+        break;
+      case CANCELLED:
+        webhookService.processRefund(webhookId, paymentId);
+        break;
+      case FAILED:
+        webhookService.processFailed(webhookId, paymentId);
+        break;
+      case UNKNOWN:
+        log.warn("[PORTONE_WEBHOOK] 웹훅에서 처리하지 않는 타입: {}",payload.getType());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
-
-    if(transactionType.equals(TransactionType.PAID)) {
-      webhookService.processPaid(webhookId, payload.getData().getPaymentId());
-    } else if (transactionType.equals(TransactionType.CANCELLED) || transactionType.equals(
-        TransactionType.FAILED)) {
-      webhookService.processRefund(webhookId, payload.getData().getPaymentId());
-    }
-
-    // 있으면 포인트 적립, 멤버십 등급 갱신
     return ResponseEntity.ok().build();
   }
 }

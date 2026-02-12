@@ -15,7 +15,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import sparta.paymentassignment.common.entity.BaseEntity;
-import sparta.paymentassignment.domain.payment.PaymentStatus;
+import sparta.paymentassignment.domain.point.exception.PointStatusException;
 
 @Entity
 @Getter
@@ -49,6 +49,39 @@ public class Point extends BaseEntity {
     this.userId = userId;
     this.orderId = orderId;
   }
+
+  public void updateType(PointType targetType) {
+    if(!this.pointType.canMove(targetType)) {
+      throw new PointStatusException(
+          "현재 [" + this.pointType + "] 상태에서는 [" + targetType + "]으로 변경할 수 없습니다.");
+    }
+    this.pointType = targetType;
+  }
+
+  // 포인트 적립
+  public static Point createAccumulated(Long userId, BigDecimal amount, Long orderId) {
+    return Point.builder()
+        .userId(userId)
+        .points(amount)
+        .orderId(orderId)
+        .pointType(PointType.ACCUMULATED)
+        .build();
+  }
+
+  // 포인트 차감/소멸 처리 로직
+  public void reduce(PointType target, BigDecimal reduceAmount) {
+    if (!this.pointType.canMove(target)) {
+      throw new IllegalStateException("현재 포인트 상태에서 " + target + "으로 진행할 수 없습니다.");
+    }
+
+    if (this.points.compareTo(reduceAmount) < 0) {
+      throw new IllegalArgumentException("차감할 잔액이 부족합니다. (잔액: " + this.points + ")");
+    }
+
+    this.points = this.points.subtract(reduceAmount);
+  }
+
+
 
   // 처음 포인트는 100씩 줌
   public static Point createInitialPoint(Long userId) {
