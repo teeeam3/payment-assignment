@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import sparta.paymentassignment.domain.order.service.OrderService;
 import sparta.paymentassignment.domain.payment.Payment;
@@ -32,7 +33,6 @@ public class WebhookService {
   private final OrderService orderService;
 
   // 결제가 승인되었을 때의 웹훅 처리
-  @Transactional
   public void processPaid(String webhookId, String paymentId) {
     // 멱등성 체크 : webhook 테이블에 저장되는 webhookId는 유일함을 활용
     // 이미 webhook 테이블에 존재하면 아무처리 안함
@@ -56,7 +56,6 @@ public class WebhookService {
   }
 
   // 환불 되었을때의 웹훅 처리
-  @Transactional
   public void processRefund(String webhookId, String paymentId) {
     // 멱등성 체크 : webhook 테이블에 저장되는 webhookId는 유일함을 활용
     // 이미 webhook 테이블에 존재하면 아무처리 안함
@@ -73,15 +72,11 @@ public class WebhookService {
       throw e;
     }
 
-    // 재고 보상 트랜잭션
-    executeCompensationTransaction(paymentId);
-
     // 환불 로직 실행
     executeRefund(webhookId, paymentId);
   }
 
   // 결제가 실패되었을 때의 웹훅 처리
-  @Transactional
   public void processFailed(String webhookId, String paymentId) {
     // 멱등성 체크 : webhook 테이블에 저장되는 webhookId는 유일함을 활용
     // 이미 webhook 테이블에 존재하면 아무처리 안함
@@ -99,6 +94,24 @@ public class WebhookService {
 
     // 보상 트랜잭션
     executeCompensationTransaction(paymentId);
+
+    // 실패 로직 실행
+    executeFailed(webhookId, paymentId);
+  }
+
+  @Transactional
+  public void executeFailed(String webhookId, String paymentId) {
+    // 비관적 락을 통해 엔티티 조회
+    Payment payment = paymentService.findByPortonePaymentIdWithLock(paymentId)
+        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 결제 건입니다."));
+
+    if(payment.getPaymentStatus().equals(PaymentStatus.CANCELLED)) {
+      webhookRepository.save(new Webhook(webhookId, WebhookStatus.FINISHED));
+      return;
+    }
+
+    // payment를 cancelled 상태로 변경
+    payment.cancel();
 
     // 웹훅 기록 저장
     webhookRepository.save(new Webhook(webhookId, WebhookStatus.FINISHED));
@@ -194,9 +207,9 @@ public class WebhookService {
   }
 
   // 결제 검증 실패 시 실행되는 보상 트랜잭션
-  @Transactional
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void executeCompensationTransaction(String paymentId) {
-    Payment payment = paymentService.findByPortonePaymentId(paymentId)
+    Payment payment = paymentService.findByPortonePaymentIdWithLock(paymentId)
         .orElseThrow(() -> new IllegalArgumentException("결제 정보를 찾을 수 없습니다."));
 
     // 재고 복구
