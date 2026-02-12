@@ -5,6 +5,8 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import sparta.paymentassignment.domain.order.Order;
+import sparta.paymentassignment.domain.order.repository.OrderRepository;
 import sparta.paymentassignment.domain.payment.Payment;
 import sparta.paymentassignment.domain.payment.PaymentStatus;
 import sparta.paymentassignment.domain.payment.common.PortOneClient;
@@ -14,9 +16,15 @@ import sparta.paymentassignment.domain.payment.dto.PaymentResponse;
 import sparta.paymentassignment.domain.payment.dto.PortOneResponse;
 import sparta.paymentassignment.domain.payment.repository.PaymentRepository;
 import sparta.paymentassignment.domain.point.service.PointService;
+import sparta.paymentassignment.exception.OrderNotFoundException;
 import sparta.paymentassignment.exception.PaymentAmountMismatchException;
 import sparta.paymentassignment.exception.PaymentNotFoundException;
+import sparta.paymentassignment.product.entity.Product;
+import sparta.paymentassignment.product.excption.ProductNotFoundException;
+import sparta.paymentassignment.product.repository.ProductRepository;
 
+
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -26,17 +34,34 @@ public class PaymentService {
     private final PortOneClient portOneClient; // 공통 설정 참고
     private final PointService pointService;   // 포인트 적립 담당 연동
     private final MembershipService membershipService; // 멤버십 갱신 담당 연동
+    private final ProductRepository productRepository;
+    private final OrderRepository orderRepository;
 
-    //결제 시도 시작 기록
     @Transactional
     public PaymentResponse initiatePayment(PaymentRequest request) {
-        // 1. 엔티티의 static factory 메서드 호출
-        Payment payment = Payment.create(request.getAmount(), request.getOrderId(), request.getOrderNumber());
+        // 1. 주문 정보 조회 및 상품명 가공
+        Order order = orderRepository.findById(request.getOrderId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주문 ID입니다: " + request.getOrderId()));
 
-        // 2. 결제 대기(PENDING) 상태로 저장
+        List<OrderItem> items = order.getOrderItems();
+        String orderName = items.get(0).getProductName();
+        if (items.size() > 1) {
+            orderName += " 외 " + (items.size() - 1) + "건";
+        }
+
+        // 2. [포인트 처리] 포인트 사용 로직 호출 및 최종 결제 금액 계산
+        if (request.getUsePoint() > 0) {
+            pointService.use(order.getCustomerId(), request.getUsePoint());
+        }
+
+        // 실제 결제 금액 = 총 금액 - 사용 포인트
+        BigDecimal finalAmount = request.getAmount().subtract(BigDecimal.valueOf(request.getUsePoint()));
+
+        // 3. 결제 엔티티 생성 (최종 금액 반영) 및 저장
+        Payment payment = Payment.create(finalAmount, request.getOrderId(), request.getOrderNumber(), request.getUsePoint());
         paymentRepository.save(payment);
 
-        return new PaymentResponse(payment.getPortonePaymentId(), payment.getTotalAmount());
+        return new PaymentResponse(payment.getPortonePaymentId(), payment.getTotalAmount(), orderName);
     }
 
     // 결제 확정 요청
@@ -65,8 +90,23 @@ public class PaymentService {
             membershipService.refreshGrade(payment.getOrderId());
 
         } catch (Exception e) {
-            // [보상 트랜잭션] 실패 시 포트원 결제 취소 API 호출
-            portOneClient.cancel(paymentId, "서버 내부 처리 실패: " + e.getMessage());
+            //포트원 취소
+            portOneClient.cancel(paymentId, e.getMessage());
+
+            //포인트 복구: 결제 실패 시 사용했던 포인트를 다시 돌려줌
+            if (payment.getUsedPoint() > 0) {
+                pointService.restore(payment.getOrderId(), payment.getUsedPoint());
+            }
+
+            // 재고 복구 로직
+            Order order = orderRepository.findById(payment.getOrderId())
+                    .orElseThrow(() -> new IllegalArgumentException("주문 없음"));
+
+            for (OrderItem item : order.getOrderItems()) {
+                Product product = productRepository.findById(item.getProductId())
+                        .orElseThrow(() -> new IllegalArgumentException("상품 없음 ID: " + item.getProductId()));
+                product.addStock(item.getQuantity());
+            }
             throw e;
         }
     }

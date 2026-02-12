@@ -13,4 +13,6 @@ public class PaymentResponse {
 
     // 결제 금액 재확인
     private BigDecimal amount;
+
+    private String orderName;
 }
