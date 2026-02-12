@@ -33,5 +33,8 @@ public class AdminInitRunner implements CommandLineRunner {
                 new BigDecimal(5000)
         );
         userRepository.save(admin);
+
+
+
     }
 }

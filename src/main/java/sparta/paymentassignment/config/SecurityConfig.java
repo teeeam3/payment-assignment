@@ -60,7 +60,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/").permitAll()
                     .requestMatchers(HttpMethod.GET, "/pages/**").permitAll()
                     // 상품 조회 API 임시 허용
-                    .requestMatchers(HttpMethod.GET, "/products", "/products/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/**").permitAll()
 
                     // 3) 공개 API
                     .requestMatchers(HttpMethod.GET, "/api/public/**").permitAll()

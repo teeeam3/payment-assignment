@@ -2,12 +2,14 @@
 //
 //import lombok.RequiredArgsConstructor;
 //import org.springframework.http.ResponseEntity;
+//import org.springframework.security.core.annotation.AuthenticationPrincipal;
 //import org.springframework.web.bind.annotation.*;
 //import sparta.paymentassignment.domain.payment.dto.PaymentDetail;
 //import sparta.paymentassignment.domain.payment.dto.PaymentRequest;
 //import sparta.paymentassignment.domain.payment.dto.PaymentResponse;
 //import sparta.paymentassignment.domain.payment.service.PaymentService;
 //
+//import java.nio.file.attribute.UserPrincipal;
 //import java.util.List;
 //
 //@RestController
@@ -30,10 +32,10 @@
 //    }
 //
 //    // 결제 내역 조회
-////    @GetMapping
-////    public ResponseEntity<List<PaymentDetail>> getPaymentList(@AuthenticationPrincipal UserPrincipal user) {
-////        // 인증 세션이나 토큰에서 추출한 userId를 넘긴다
-////        List<PaymentDetail> response = paymentService.getMyPaymentList(user.getId());
-////        return ResponseEntity.ok(response);
-////    }
+//    @GetMapping
+//    public ResponseEntity<List<PaymentDetail>> getPaymentList(@AuthenticationPrincipal UserPrincipal user) {
+//        // 인증 세션이나 토큰에서 추출한 userId를 넘긴다
+//        List<PaymentDetail> response = paymentService.getMyPaymentList(Long.valueOf(user.getName()));
+//        return ResponseEntity.ok(response);
+//    }
 //}
