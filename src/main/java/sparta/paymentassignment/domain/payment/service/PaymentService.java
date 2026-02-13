@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import sparta.paymentassignment.domain.order.Order;
 import sparta.paymentassignment.domain.order.OrderItem;
 import sparta.paymentassignment.domain.order.repository.OrderRepository;
+import sparta.paymentassignment.domain.order.service.OrderService;
 import sparta.paymentassignment.domain.payment.Payment;
 import sparta.paymentassignment.domain.payment.PaymentStatus;
 import sparta.paymentassignment.domain.payment.common.PortOneClient;
@@ -34,21 +35,18 @@ public class PaymentService {
     private final PointService pointService;   // 포인트 적립 담당 연동
     private final UserMembershipService membershipService; // 멤버십 갱신 담당 연동
     private final ProductRepository productRepository;
-    private final OrderRepository orderRepository;
+    private final OrderService orderService;
 
     @Transactional
     public PaymentResponse initiatePayment(PaymentRequest request) {
         // 1. 주문 정보 조회 및 상품명 가공
-        Order order = orderRepository.findById(request.getOrderId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주문 ID입니다: " + request.getOrderId()));
+      // OrderService를 통해서 order를 가져오도록 수정
+      Order order = orderService.findById(request.getOrderId());
 
-        List<OrderItem> items = order.getOrderItems();
-        String orderName = items.get(0).getProductName();
-        if (items.size() > 1) {
-            orderName += " 외 " + (items.size() - 1) + "건";
-        }
+      // OrderService에서 주문 이름 생성하도록 수정
+      String orderName = orderService.createOrderName(order);
 
-        // 2. [포인트 처리] 포인트 사용 로직 호출 및 최종 결제 금액 계산
+      // 2. [포인트 처리] 포인트 사용 로직 호출 및 최종 결제 금액 계산
         if (request.getUsePoint().compareTo(BigDecimal.ZERO) > 0) {
             pointService.usePoint(order.getUserId(),order.getId(), request.getUsePoint());
         }
@@ -96,8 +94,7 @@ public class PaymentService {
             portOneClient.cancel(paymentId, e.getMessage());
 
             // 2.주문 정보 조회
-            Order order = orderRepository.findById(payment.getOrderId())
-                    .orElseThrow(() -> new IllegalArgumentException("주문 정보를 찾을 수 없습니다."));
+          Order order = orderService.findById(payment.getOrderId());
 
             // 3.적립 취소
             pointService.cancelPoint(order.getUserId(), order.getId());
