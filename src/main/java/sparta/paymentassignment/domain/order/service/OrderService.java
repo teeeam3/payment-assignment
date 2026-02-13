@@ -2,6 +2,7 @@ package sparta.paymentassignment.domain.order.service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -127,5 +128,18 @@ public class OrderService {
       Integer quantity = orderItem.getQuantity();
       productService.refillProduct(productId, quantity);
     });
+  }
+
+  public String createOrderName(Order order) {
+    List<OrderItem> items = order.getOrderItems();
+    String orderName = items.get(0).getProductName();
+    if (items.size() > 1) {
+      orderName += " 외 " + (items.size() - 1) + "건";
+    }
+    return orderName;
+  }
+
+  public Order findById(Long orderId) {
+    return orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException(orderId));
   }
 }
