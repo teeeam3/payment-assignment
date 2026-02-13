@@ -39,6 +39,7 @@ public class PaymentService {
 
     @Transactional
     public PaymentResponse initiatePayment(PaymentRequest request) {
+        log.info("orderId: {}, orderNumber: {}", request.getOrderId(), request.getOrderNumber());
         // 1. 주문 정보 조회 및 상품명 가공
       // OrderService를 통해서 order를 가져오도록 수정
       Order order = orderService.findById(request.getOrderId());
@@ -46,19 +47,37 @@ public class PaymentService {
       // OrderService에서 주문 이름 생성하도록 수정
       String orderName = orderService.createOrderName(order);
 
+        String finalOrderNumber = (request.getOrderNumber() != null)
+                ? request.getOrderNumber()
+                : order.getOrderNumber();
+
+        log.info("결제 생성 시작 - 주문번호: {}", finalOrderNumber);
+
       // 2. [포인트 처리] 포인트 사용 로직 호출 및 최종 결제 금액 계산
-        if (request.getUsePoint().compareTo(BigDecimal.ZERO) > 0) {
-            pointService.usePoint(order.getUserId(),order.getId(), request.getUsePoint());
+        if (request.getUsedPoint().compareTo(BigDecimal.ZERO) > 0) {
+            pointService.usePoint(order.getUserId(),order.getId(), request.getUsedPoint());
         }
 
         // 실제 결제 금액 = 총 금액 - 사용 포인트
-        BigDecimal finalAmount = request.getAmount().subtract(request.getUsePoint());
+        BigDecimal finalAmount = request.getAmount().subtract(request.getUsedPoint());
 
-        // 3. 결제 엔티티 생성 (최종 금액 반영) 및 저장
-        Payment payment = Payment.create(finalAmount, request.getOrderId(), order.getOrderNumber(), request.getUsePoint());
-        paymentRepository.save(payment);
+        Payment payment = Payment.create(
+                request.getAmount(),
+                request.getOrderId(),
+                finalOrderNumber,
+                request.getUsedPoint()
+        );
 
-        return new PaymentResponse(payment.getPortonePaymentId(), payment.getTotalAmount(), orderName);
+        //DB 저장
+        Payment savedPayment = paymentRepository.save(payment);
+        log.info("getPortonePaymentId: {}", savedPayment.getPortonePaymentId());
+
+        return new PaymentResponse(
+                savedPayment.getPortonePaymentId(),
+                finalAmount,
+                orderName,
+                true
+        );
     }
 
     // 결제 확정 요청

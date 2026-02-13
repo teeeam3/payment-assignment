@@ -8,6 +8,6 @@ import lombok.Getter;
 public class CreateOrderResponse {
     private final Long orderId;
     private final String orderNumber;
+    private final String orderName;
     private final String status;
-
 }

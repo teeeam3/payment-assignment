@@ -59,6 +59,8 @@ public class OrderService {
 
             order.addOrderItem(orderItem);
         }
+        String generatedOrderName = createOrderName(order);
+        order.updateOrderName(generatedOrderName);
 
         BigDecimal totalAmount = order.calculateTotalAmount();
         order.updateTotalAmount(totalAmount);
@@ -68,6 +70,7 @@ public class OrderService {
         return new CreateOrderResponse(
                 savedOrder.getId(),
                 savedOrder.getOrderNumber(),
+                savedOrder.getOrderName(),
                 savedOrder.getOrderStatus().name()
         );
     }
@@ -84,6 +87,7 @@ public class OrderService {
                 .map(order -> new OrderSummaryResponse(
                         order.getId(),
                         order.getOrderNumber(),
+                        order.getOrderName(),
                         order.getTotalAmount(),
                         order.getOrderStatus()
                 ))
