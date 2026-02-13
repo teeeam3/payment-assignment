@@ -21,17 +21,17 @@ public class OrderItem {
 
     private String productName;
 
-    private Long price;
+    private BigDecimal price;
 
     private Integer quantity;
 
-    private Long subTotalPrice;
+    private BigDecimal subTotalPrice;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     private Order order;
 
-    public OrderItem(Long productId, String productName, Long price, Integer quantity, Long subTotalPrice) {
+    public OrderItem(Long productId, String productName, BigDecimal price, Integer quantity, BigDecimal subTotalPrice) {
         this.productId = productId;
         this.productName = productName;
         this.price = price;

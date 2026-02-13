@@ -7,7 +7,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.NaturalId;
 import sparta.paymentassignment.common.entity.BaseEntity;
+import sparta.paymentassignment.domain.webhook.exception.TotalAmountNotEqualException;
+import sparta.paymentassignment.exception.ErrorCode;
+import sparta.paymentassignment.exception.InvalidOrderAmountException;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,9 +34,8 @@ public class Order extends BaseEntity {
     @Column(nullable = false, updatable = false)
     private Long userId;
 
-    @Setter
     @Column(nullable = false)
-    private Long totalAmount;
+    private BigDecimal totalAmount;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -43,7 +46,7 @@ public class Order extends BaseEntity {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
 
-    public Order(Long userId, Long totalAmount) {
+    public Order(Long userId, BigDecimal totalAmount) {
         this.orderNumber = UUID.randomUUID().toString();// 주문번호 자동 생성
         this.userId = userId;
         this.totalAmount = totalAmount;
@@ -56,10 +59,26 @@ public class Order extends BaseEntity {
 
     public void refund(String reason) {
         this.orderStatus = OrderStatus.REFUNDED;
+        this.canceledReason = reason;
     }
 
     public void addOrderItem(OrderItem item) {
         this.orderItems.add(item);
         item.assignOrder(this);
+    }
+
+    public void updateTotalAmount(BigDecimal totalAmount) {
+        if (totalAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new InvalidOrderAmountException(totalAmount);
+        }
+        this.totalAmount = totalAmount;
+    }
+
+    public BigDecimal calculateTotalAmount() {
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        for (OrderItem item : orderItems) {
+            totalAmount = totalAmount.add(item.getSubTotalPrice());
+        }
+        return totalAmount;
     }
 }

@@ -1,5 +1,6 @@
 package sparta.paymentassignment.domain.order.dto;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -13,7 +14,7 @@ public class OrderDetailResponse {
     private final Long orderId;
     private final String orderNumber;
     private final Long customerId;
-    private final Long totalAmount;
+    private final BigDecimal totalAmount;
     private final OrderStatus status;
     private final LocalDateTime orderedAt;
     private final List<OrderItemResponse> items;  // 🔥 필수

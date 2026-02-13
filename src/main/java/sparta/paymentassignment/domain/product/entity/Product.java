@@ -5,6 +5,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Getter
 @Entity
 @Table(name = "products")
@@ -18,7 +20,7 @@ public class Product {
     private String name;
 
     @Column(nullable = false)
-    private Long price;
+    private BigDecimal price;
 
     @Column(nullable = false)
     private int stock;
@@ -32,7 +34,7 @@ public class Product {
     @Column(nullable = false)
     private String category;
 
-    public Product(String name, Long price, int stock, String description, ProductStatus status, String category) {
+    public Product(String name, BigDecimal price, int stock, String description, ProductStatus status, String category) {
         this.name = name;
         this.price = price;
         this.stock = stock;
@@ -52,6 +54,12 @@ public class Product {
         if (quantity > this.stock) {
             throw new RuntimeException("주문 수량이 재고 보다 큼");
         }
+    }
+
+    // 재고 차감 도메인 메서드
+    public void deductingStock(int quantity) {
+        validateStock(quantity);
+        this.stock -= quantity;
     }
 
 }
