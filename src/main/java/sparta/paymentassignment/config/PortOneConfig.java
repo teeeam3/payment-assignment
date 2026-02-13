@@ -1,4 +1,4 @@
-package sparta.paymentassignment.domain.webhook.config;
+package sparta.paymentassignment.config;
 
 import io.portone.sdk.server.PortOneClient;
 import org.springframework.beans.factory.annotation.Value;

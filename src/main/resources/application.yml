@@ -13,7 +13,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create   # create / update / validate / none
+      ddl-auto: update   # create / update / validate / none
   application:
     name: payment-demo
 
