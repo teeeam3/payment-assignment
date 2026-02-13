@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 import sparta.paymentassignment.domain.membership.MembershipPolicy;
 import sparta.paymentassignment.domain.membership.rpository.MembershipPolicyRepository;
 import sparta.paymentassignment.domain.payment.repository.PaymentRepository;
-import sparta.paymentassignment.domain.user.User;
 import sparta.paymentassignment.domain.user.UserMembership;
 import sparta.paymentassignment.domain.user.dto.UserMembershipResponse;
 import sparta.paymentassignment.domain.user.repository.UserMembershipRepository;

@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sparta.paymentassignment.domain.membership.MembershipPolicy;
 import sparta.paymentassignment.domain.membership.rpository.MembershipPolicyRepository;
-import sparta.paymentassignment.domain.point.Point;
 import sparta.paymentassignment.domain.point.exception.InsufficientPointException;
 import sparta.paymentassignment.domain.user.User;
 import sparta.paymentassignment.domain.user.UserMembership;
