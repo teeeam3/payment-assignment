@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sparta.paymentassignment.domain.membership.MembershipPolicy;
 import sparta.paymentassignment.domain.membership.rpository.MembershipPolicyRepository;
+import sparta.paymentassignment.domain.point.Point;
 import sparta.paymentassignment.domain.point.exception.InsufficientPointException;
+import sparta.paymentassignment.domain.point.repository.PointRepository;
 import sparta.paymentassignment.domain.user.User;
 import sparta.paymentassignment.domain.user.UserMembership;
 import sparta.paymentassignment.domain.user.dto.*;
@@ -35,6 +37,7 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
     private final MembershipPolicyRepository membershipPolicyRepository;
     private final UserMembershipRepository userMembershipRepository;
+    private final PointRepository pointRepository;
 
     @Transactional
     public RegisterResponse register(RegisterRequest request) {
@@ -47,9 +50,14 @@ public class UserService {
                 request.getEmail(),
                 passwordEncoder.encode(request.getPassword()),
                 UserRole.USER,
-                BigDecimal.ZERO
+                BigDecimal.valueOf(500L)
         );
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        // 유저 포인트 증가
+        userRepository.incrementPoint(savedUser.getId(), BigDecimal.valueOf(500L));
+
+        Point point = Point.createInitialPoint(savedUser.getId());
+        pointRepository.save(point);
 
         // 멤버쉽 기본 등급 자동 생성
         // 정책 테이블에서 NORMAL 정책 조회
@@ -58,16 +66,16 @@ public class UserService {
         );
 
         UserMembership userMembership = new UserMembership(
-                user, membershipPolicy.getGrade(), BigDecimal.ZERO
+                savedUser, membershipPolicy.getGrade(), BigDecimal.ZERO
         );
 
         userMembershipRepository.save(userMembership);
         return new RegisterResponse(
-                user.getId(),
-                user.getName(),
-                user.getPhone(),
-                user.getEmail(),
-                user.getRole().getRoleName()
+                savedUser.getId(),
+                savedUser.getName(),
+                savedUser.getPhone(),
+                savedUser.getEmail(),
+                savedUser.getRole().getRoleName()
         );
     }
 

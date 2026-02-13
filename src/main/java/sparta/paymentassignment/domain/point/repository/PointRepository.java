@@ -16,4 +16,8 @@ public interface PointRepository extends JpaRepository<Point, Long> {
             "('ACCUMULATED', 'RESTORED', 'ADJUSTED_PLUS') and p.expired_at < :now")
     List<Point> findExpiredPoints(LocalDateTime now);
 
+    @Query("select p from Point p where p.userId = :userId and p.pointType in " +
+            "('ACCUMULATED', 'RESTORED', 'ADJUSTED_PLUS') and p.points > 0 order by p.expired_at asc ")
+    List<Point> findAvailablePointsOrderByExpire(Long userId);
+
 }

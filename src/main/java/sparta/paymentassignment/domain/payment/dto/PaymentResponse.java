@@ -12,11 +12,13 @@ public class PaymentResponse {
   private String paymentId;
 
   // 결제 금액 재확인
-  private BigDecimal amount;
+  private BigDecimal totalAmount;
 
   private String orderName;
 
   private boolean success;
 
   private String status;
+
+  private String currency;
 }

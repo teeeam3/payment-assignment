@@ -15,5 +15,5 @@ public class OrderSummaryResponse {
     private final String orderName; // 아이폰 15 외 4개
     private final BigDecimal totalAmount;
     private final OrderStatus status;
-    private final String currency = "krw";
+    private final String currency = "KRW";
 }
