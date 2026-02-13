@@ -19,5 +19,6 @@ public class PaymentRequest {
 
     private String orderName;
 
+    @JsonProperty("pointToUse")
     private BigDecimal usedPoint = BigDecimal.ZERO;
 }

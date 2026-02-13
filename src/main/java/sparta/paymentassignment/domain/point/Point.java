@@ -85,7 +85,7 @@ public class Point extends BaseEntity {
 
   // 처음 포인트는 100씩 줌
   public static Point createInitialPoint(Long userId) {
-    return new Point(BigDecimal.valueOf(100L), PointType.ADJUSTED_PLUS,
+    return new Point(BigDecimal.valueOf(500L), PointType.ADJUSTED_PLUS,
         LocalDateTime.now().plusDays(30L), userId, null);
   }
 }

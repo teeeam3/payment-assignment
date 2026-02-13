@@ -58,7 +58,7 @@ public class PaymentService {
     paymentRepository.save(payment);
 
     return new PaymentResponse(payment.getPaymentId(), payment.getTotalAmount(), orderName,
-        true, "성공");
+        true, "성공", "KRW");
   }
 
     // 결제 확정 요청

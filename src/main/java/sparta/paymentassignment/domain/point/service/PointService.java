@@ -2,15 +2,20 @@ package sparta.paymentassignment.domain.point.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sparta.paymentassignment.domain.point.Point;
 import sparta.paymentassignment.domain.point.PointType;
+import sparta.paymentassignment.domain.point.exception.InsufficientPointException;
 import sparta.paymentassignment.domain.point.exception.PointNotFoundException;
 import sparta.paymentassignment.domain.point.exception.PointStatusException;
 import sparta.paymentassignment.domain.point.repository.PointRepository;
+import sparta.paymentassignment.domain.user.repository.UserRepository;
 import sparta.paymentassignment.domain.user.service.UserService;
 import sparta.paymentassignment.exception.ErrorCode;
 import sparta.paymentassignment.exception.UserNotFoundException;
@@ -23,8 +28,9 @@ public class PointService {
 
   private final UserService userService;
   private final PointRepository pointRepository;
+    private final UserRepository userRepository;
 
-  @Transactional
+    @Transactional
   public void registPoint(Long userId, Long orderId, BigDecimal totalAmount) {
     // 총 결제금액의 3%가 point로 들어감
     BigDecimal pointAccumulatedAmount = totalAmount.multiply(BigDecimal.valueOf(0.03));
@@ -65,10 +71,30 @@ public class PointService {
   }
   @Transactional
   public void usePoint(Long userId, Long orderId, BigDecimal amount) {
-    int updatedRows = userService.retrievePoint(userId, amount);
-    if (updatedRows == 0) {
-      throw new IllegalArgumentException("포인트 잔액이 부족하거나 유저를 찾을 수 없습니다.");
-    }
+
+
+      // 유저 총 포인트 차감
+      userService.retrievePoint(userId, amount);
+
+      // 포인트 리스트 조회(만료일 가까운 순 사용)
+      List<Point> points = pointRepository.findAvailablePointsOrderByExpire(userId);
+
+      BigDecimal remaining = amount;
+
+      for (Point point : points) {
+          if (remaining.compareTo(BigDecimal.ZERO) <= 0) break;
+
+          BigDecimal usedPoint = point.getPoints();
+
+          point.reduce(PointType.USED, usedPoint);
+
+          remaining = remaining.subtract(usedPoint);
+      }
+
+      // 포인트 부족 검증
+      if (remaining.compareTo(BigDecimal.ZERO) > 0) {
+          throw new InsufficientPointException("포인트 잔액이 부족합니다.");
+      }
 
     //포인트 사용 이력 저장
     Point pointHistory = Point.builder()
@@ -80,6 +106,7 @@ public class PointService {
 
     pointRepository.save(pointHistory);
   }
+
   @Transactional
   public void restorePoint(Long userId, Long orderId, BigDecimal amount) {
     //유저 포인트 다시 늘려주기
