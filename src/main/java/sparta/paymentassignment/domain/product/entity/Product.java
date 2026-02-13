@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import sparta.paymentassignment.domain.product.excption.InsufficientStockException;
+import sparta.paymentassignment.exception.ErrorCode;
 
 import java.math.BigDecimal;
 
@@ -52,7 +54,7 @@ public class Product {
 
     public void validateStock(int quantity) {
         if (quantity > this.stock) {
-            throw new RuntimeException("주문 수량이 재고 보다 큼");
+            throw new InsufficientStockException(ErrorCode.INSUFFICIENT_STOCK);
         }
     }
 
@@ -61,5 +63,4 @@ public class Product {
         validateStock(quantity);
         this.stock -= quantity;
     }
-
 }

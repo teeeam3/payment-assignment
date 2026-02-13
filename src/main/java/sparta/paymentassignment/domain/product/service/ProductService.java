@@ -66,7 +66,7 @@ public class ProductService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
 
-        product.validateStock(quantity);
+        product.deductingStock(quantity);
         return product;
     }
 }

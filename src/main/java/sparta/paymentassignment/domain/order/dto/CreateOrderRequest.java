@@ -8,11 +8,11 @@ import java.util.List;
 @Getter
 public class CreateOrderRequest {
 
-    private final Long customerId;
+    private final Long userId;
     private final List<OrderItemRequest> items;
 
-    public CreateOrderRequest(Long customerId, List<OrderItemRequest> items) {
-        this.customerId = customerId;
+    public CreateOrderRequest(Long userId, List<OrderItemRequest> items) {
+        this.userId = userId;
         this.items = new ArrayList<>(items);
     }
 }

@@ -2,7 +2,6 @@ package sparta.paymentassignment.domain.order.service;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,13 +13,11 @@ import sparta.paymentassignment.domain.product.entity.Product;
 import sparta.paymentassignment.domain.product.service.ProductService;
 import sparta.paymentassignment.domain.user.User;
 import sparta.paymentassignment.domain.user.repository.UserRepository;
-import sparta.paymentassignment.domain.user.service.UserService;
 import sparta.paymentassignment.exception.ErrorCode;
 import sparta.paymentassignment.exception.InvalidOrderAmountException;
 import sparta.paymentassignment.exception.OrderNotFoundException;
 import sparta.paymentassignment.exception.UserNotFoundException;
 
-import static sparta.paymentassignment.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +25,6 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final ProductService productService;
-    private final UserService userService;
     private final UserRepository userRepository;
 
     @Transactional
@@ -45,8 +41,6 @@ public class OrderService {
 
         for (OrderItemRequest item : request.getItems()) {
             Product productForOrderItem = productService.getProductForOrderItem(item.getProductId(), item.getQuantity());
-
-            productForOrderItem.updateStock(productForOrderItem.getStock() - item.getQuantity());
             BigDecimal subTotalPrice = productForOrderItem.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
 
             OrderItem orderItem = new OrderItem(
