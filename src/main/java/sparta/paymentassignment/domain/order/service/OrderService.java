@@ -1,6 +1,5 @@
 package sparta.paymentassignment.domain.order.service;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +9,6 @@ import sparta.paymentassignment.domain.order.Order;
 import sparta.paymentassignment.domain.order.OrderItem;
 import sparta.paymentassignment.domain.order.dto.*;
 import sparta.paymentassignment.domain.order.repository.OrderRepository;
-import sparta.paymentassignment.domain.product.dto.ProductDetailResponse;
 import sparta.paymentassignment.domain.product.entity.Product;
 import sparta.paymentassignment.domain.product.service.ProductService;
 import sparta.paymentassignment.domain.user.service.UserService;

@@ -1,5 +1,6 @@
 package sparta.paymentassignment.security;
 
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,14 +47,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // 2. 토큰 유효성 검증
             if (token != null && jwtTokenProvider.validateToken(token)) {
                 // 3. 토큰에서 사용자 정보 추출
-                String email = jwtTokenProvider.getEmail(token);
+//                String email = jwtTokenProvider.getEmail(token);
+                Long userId = jwtTokenProvider.getUserId(token);
+                String role = jwtTokenProvider.getRole(token);
+
 
                 // 4. 인증 객체 생성
                 UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
-                            email,
+                            userId,
                         null,
-                            List.of(new SimpleGrantedAuthority("ROLE_USER")));
+                            List.of(new SimpleGrantedAuthority(role)));
 
                 // 5. SecurityContext에 인증 정보 설정
                 SecurityContextHolder.getContext().setAuthentication(authentication);
