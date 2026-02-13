@@ -80,20 +80,26 @@ public class WebhookController {
     TransactionType transactionType = TransactionType.fromPortOneTransactionType(payload.getType());
     String paymentId = payload.getData().getPaymentId();
 
-    switch (transactionType) {
-      case PAID:
-        webhookService.processPaid(webhookId, paymentId);
-        break;
-      case CANCELLED:
-        webhookService.processRefund(webhookId, paymentId);
-        break;
-      case FAILED:
-        webhookService.processFailed(webhookId, paymentId);
-        break;
-      case UNKNOWN:
-        log.warn("[PORTONE_WEBHOOK] 웹훅에서 처리하지 않는 타입: {}",payload.getType());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    try {
+      switch (transactionType) {
+        case PAID:
+          webhookService.processPaid(webhookId, paymentId);
+          break;
+        case CANCELLED:
+          webhookService.processRefund(webhookId, paymentId);
+          break;
+        case FAILED:
+          webhookService.processFailed(webhookId, paymentId);
+          break;
+        case UNKNOWN:
+          log.warn("[PORTONE_WEBHOOK] 웹훅에서 처리하지 않는 타입: {}", payload.getType());
+          return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+      }
+    }catch (Exception e) {
+      log.error("[PORTONE WEBHOOK] 처지되지 않은 심각한 에러 발생. webhookId={}", webhookId, e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
+
     return ResponseEntity.ok().build();
   }
 }

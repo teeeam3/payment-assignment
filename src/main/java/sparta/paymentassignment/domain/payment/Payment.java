@@ -4,14 +4,12 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import sparta.paymentassignment.common.entity.BaseEntity;
-import sparta.paymentassignment.domain.user.User;
 import sparta.paymentassignment.exception.InvalidStatusTransitionException;
 
 @Entity
@@ -28,7 +26,8 @@ public class Payment extends BaseEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  private String portonePaymentId;
+  @Column(name = "portone_payment_id")
+  private String paymentId;
 
   private BigDecimal totalAmount;
 
@@ -44,25 +43,26 @@ public class Payment extends BaseEntity {
   @Column(nullable = false, name = "order_id")
   private Long orderId;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "user_id")
-  private User user;
+  private Long userId;
 
   private BigDecimal usedPoint;
 
-  private Payment(String portonePaymentId, BigDecimal totalAmount, PaymentStatus paymentStatus,
-      LocalDateTime paidAt, LocalDateTime refundedAt, Long orderId,BigDecimal usedPoint) {
-    this.portonePaymentId = portonePaymentId;
+  private Payment(String paymentId, BigDecimal totalAmount, PaymentStatus paymentStatus,
+      Long userId, LocalDateTime paidAt, LocalDateTime refundedAt, Long orderId,
+      BigDecimal usedPoint) {
+
+    this.paymentId = paymentId;
     this.totalAmount = totalAmount;
     this.paymentStatus = paymentStatus;
     this.paidAt = paidAt;
     this.refundedAt = refundedAt;
     this.orderId = orderId;
     this.usedPoint = usedPoint;
+    this.userId = userId;
   }
 
-  public static Payment create(BigDecimal totalAmount, Long orderId, String orderNumber, BigDecimal usedPoint) {
-
+  public static Payment create(BigDecimal totalAmount, Long orderId, String orderNumber,
+      BigDecimal usedPoint, Long userId) {
     if (totalAmount.compareTo(BigDecimal.ZERO) <= 0) {
       throw new IllegalArgumentException("금액은 0보다 커야 합니다");
     }
@@ -77,6 +77,7 @@ public class Payment extends BaseEntity {
             finalPortonePaymentId,
             totalAmount,
             PaymentStatus.PENDING,
+            userId,
             null,
             null,
             orderId,

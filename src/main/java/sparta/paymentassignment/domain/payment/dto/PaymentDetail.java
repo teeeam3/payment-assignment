@@ -21,7 +21,7 @@ public class PaymentDetail {
 
     public static PaymentDetail from(Payment payment) {
         return new PaymentDetail(
-                payment.getPortonePaymentId(),
+                payment.getPaymentId(),
                 payment.getOrderId(),
                 payment.getTotalAmount(),
                 payment.getPaymentStatus(),
