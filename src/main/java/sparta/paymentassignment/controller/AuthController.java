@@ -49,12 +49,15 @@ public class AuthController {
     public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest request) {
         LoginResponse response = userService.login(request);
         String token = response.getToken();
-        return ResponseEntity.status(HttpStatus.OK).header("Authorization", "Bearer " + token).body(ApiResponse.success(201, "로그인 성공", response));
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Authorization", "Bearer " + token)
+                .body(ApiResponse.success(201, "로그인 성공", response));
     }
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<RegisterResponse>> registser(@RequestBody RegisterRequest request) {
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(201, "회원 가입 성공", userService.register(request)));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success(201, "회원 가입 성공", userService.register(request)));
     }
 
     /**
@@ -72,9 +75,9 @@ public class AuthController {
      * 중요: customerUid는 PortOne 빌링키 발급 시 활용!
      */
     @GetMapping("/me")
-    public ResponseEntity<GetUserResponse> getCurrentUser(@AuthenticationPrincipal Long userId) {
-
-        return ResponseEntity.status(HttpStatus.OK).body(userService.getUser(userId));
+    public ResponseEntity<ApiResponse<GetUserResponse>> getCurrentUser(@AuthenticationPrincipal Long userId) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success(200, "정보 조회 성공", userService.getUser(userId)));
     }
     // TODO: 구현
     // 데이터베이스에서 사용자 정보 조회
