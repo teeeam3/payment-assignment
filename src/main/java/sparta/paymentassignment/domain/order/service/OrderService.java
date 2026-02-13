@@ -4,9 +4,11 @@ import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import sparta.paymentassignment.domain.order.Order;
 import sparta.paymentassignment.domain.order.OrderItem;
+import sparta.paymentassignment.domain.order.OrderStatus;
 import sparta.paymentassignment.domain.order.dto.*;
 import sparta.paymentassignment.domain.order.repository.OrderRepository;
 import sparta.paymentassignment.domain.product.entity.Product;
@@ -139,5 +141,12 @@ public class OrderService {
 
   public Order findById(Long orderId) {
     return orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException(orderId));
+  }
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void updateOrderStatus(Long orderId, OrderStatus orderStatus) {
+    Order order = orderRepository.findById(orderId)
+        .orElseThrow(() -> new OrderNotFoundException(orderId));
+    order.updateStatus(orderStatus);
   }
 }

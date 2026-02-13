@@ -13,9 +13,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
-    // 팀 ERD의 portone_payment_id 컬럼과 매핑
-    Optional<Payment> findByPortonePaymentId(String portonePaymentId);
-
     // 사용자의 결제 내역 조회
     // Payment 테이블의 orderId와 Order 테이블의 id를 조인하여 userId를 필터링
     @Query("SELECT p FROM Payment p " +
@@ -25,17 +22,20 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     List<Payment> findAllByCustomerId(@Param("customerId") Long customerId);
 
     // PortoneId를 기준으로하는 주문 총 결제 금액 조회
-    @Query("select p.totalAmount from Payment p where p.portonePaymentId=:portonePaymentId")
+    @Query("select p.totalAmount from Payment p where p.paymentId=:portonePaymentId")
     BigDecimal getTotalAmount(@Param("portonePaymentId") String portonePaymentId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("select p from Payment p where p.portonePaymentId=:portonePaymentId")
+    @Query("select p from Payment p where p.paymentId=:portonePaymentId")
     Optional<Payment> findByPortonePaymentIdWithLock(@Param("portonePaymentId") String portonePaymentId);
 
-    @Query("select p.totalAmount from Payment p where p.portonePaymentId=:portonePaymentId")
+    @Query("select p.totalAmount from Payment p where p.paymentId=:portonePaymentId")
     BigDecimal findTotalAmountByPortonePaymentId(String portonePaymentId);
 
     @Query("SELECT COALESCE(SUM(p.totalAmount), 0) FROM Payment p " +
-            "WHERE p.user.id = :userId AND p.paymentStatus = 'APPROVED' ")
+            "WHERE p.userId = :userId AND p.paymentStatus = 'APPROVED' ")
     BigDecimal sumPaidAmount(Long userId);
+
+    @Query("select p.orderId from Payment p where p.paymentId=:paymentId")
+    long getOrderIdByPaymentId(String paymentId);
 }

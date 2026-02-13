@@ -20,8 +20,8 @@ public class PaymentController {
 
     // 결제 시작 요청
     @PostMapping
-    public ResponseEntity<PaymentResponse> requestPayment(@RequestBody PaymentRequest request) {
-        return ResponseEntity.ok(paymentService.initiatePayment(request));
+    public ResponseEntity<PaymentResponse> requestPayment(@RequestBody PaymentRequest request, @AuthenticationPrincipal Long userId) {
+      return ResponseEntity.ok(paymentService.initiatePayment(request, userId));
     }
 
     // 결제 확정 요청

@@ -1,28 +1,26 @@
 package sparta.paymentassignment.domain.payment.service;
 
+import io.portone.sdk.server.PortOneClient;
+import io.portone.sdk.server.payment.PaidPayment;
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.concurrent.CompletionException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sparta.paymentassignment.domain.order.Order;
-import sparta.paymentassignment.domain.order.OrderItem;
-import sparta.paymentassignment.domain.order.repository.OrderRepository;
 import sparta.paymentassignment.domain.order.service.OrderService;
 import sparta.paymentassignment.domain.payment.Payment;
 import sparta.paymentassignment.domain.payment.PaymentStatus;
-import sparta.paymentassignment.domain.payment.common.PortOneClient;
 import sparta.paymentassignment.domain.payment.dto.PaymentDetail;
 import sparta.paymentassignment.domain.payment.dto.PaymentRequest;
 import sparta.paymentassignment.domain.payment.dto.PaymentResponse;
-import sparta.paymentassignment.domain.payment.dto.PortOneResponse;
 import sparta.paymentassignment.domain.payment.repository.PaymentRepository;
 import sparta.paymentassignment.domain.point.service.PointService;
 import sparta.paymentassignment.domain.user.service.UserMembershipService;
 import sparta.paymentassignment.exception.PaymentAmountMismatchException;
 import sparta.paymentassignment.exception.PaymentNotFoundException;
-import sparta.paymentassignment.domain.product.entity.Product;
 import sparta.paymentassignment.domain.product.repository.ProductRepository;
 
 import java.util.List;
@@ -31,107 +29,129 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PaymentService {
     private final PaymentRepository paymentRepository;
-    private final PortOneClient portOneClient; // 공통 설정 참고
+    private final PortOneClient portOneClient; // portone sdk 사용
     private final PointService pointService;   // 포인트 적립 담당 연동
     private final UserMembershipService membershipService; // 멤버십 갱신 담당 연동
-    private final ProductRepository productRepository;
     private final OrderService orderService;
 
-    @Transactional
-    public PaymentResponse initiatePayment(PaymentRequest request) {
-        log.info("orderId: {}, orderNumber: {}", request.getOrderId(), request.getOrderNumber());
-        // 1. 주문 정보 조회 및 상품명 가공
-      // OrderService를 통해서 order를 가져오도록 수정
-      Order order = orderService.findById(request.getOrderId());
 
-      // OrderService에서 주문 이름 생성하도록 수정
-      String orderName = orderService.createOrderName(order);
+  @Transactional
+  public PaymentResponse initiatePayment(PaymentRequest request, Long userId) {
+    // 1. 주문 정보 조회 및 상품명 가공
+    // OrderService를 통해서 order를 가져오도록 수정
+    Order order = orderService.findById(request.getOrderId());
 
-        String finalOrderNumber = (request.getOrderNumber() != null)
-                ? request.getOrderNumber()
-                : order.getOrderNumber();
+    // OrderService에서 주문 이름 생성하도록 수정
+    String orderName = orderService.createOrderName(order);
 
-        log.info("결제 생성 시작 - 주문번호: {}", finalOrderNumber);
-
-      // 2. [포인트 처리] 포인트 사용 로직 호출 및 최종 결제 금액 계산
-        if (request.getUsedPoint().compareTo(BigDecimal.ZERO) > 0) {
-            pointService.usePoint(order.getUserId(),order.getId(), request.getUsedPoint());
-        }
-
-        // 실제 결제 금액 = 총 금액 - 사용 포인트
-        BigDecimal finalAmount = request.getAmount().subtract(request.getUsedPoint());
-
-        Payment payment = Payment.create(
-                request.getAmount(),
-                request.getOrderId(),
-                finalOrderNumber,
-                request.getUsedPoint()
-        );
-
-        //DB 저장
-        Payment savedPayment = paymentRepository.save(payment);
-        log.info("getPortonePaymentId: {}", savedPayment.getPortonePaymentId());
-
-        return new PaymentResponse(
-                savedPayment.getPortonePaymentId(),
-                finalAmount,
-                orderName,
-                true
-        );
+    // 2. [포인트 처리] 포인트 사용 로직 호출 및 최종 결제 금액 계산
+    if (request.getUsedPoint().compareTo(BigDecimal.ZERO) > 0) {
+      pointService.usePoint(order.getUserId(), order.getId(), request.getUsedPoint());
     }
+
+    // 실제 결제 금액 = 총 금액 - 사용 포인트
+    BigDecimal finalAmount = request.getAmount().subtract(request.getUsedPoint());
+
+    // 3. 결제 엔티티 생성 (최종 금액 반영) 및 저장
+    Payment payment = Payment.create(finalAmount, request.getOrderId(), order.getOrderNumber(),
+        request.getUsedPoint(), userId);
+    paymentRepository.save(payment);
+
+    return new PaymentResponse(payment.getPaymentId(), payment.getTotalAmount(), orderName,
+        true, "성공");
+  }
 
     // 결제 확정 요청
     @Transactional
     public void confirmPayment(String paymentId) {
         // 1. 결제 정보 조회 (멱등성 체크 포함)
-        Payment payment = paymentRepository.findByPortonePaymentId(paymentId)
-                .orElseThrow(() -> new PaymentNotFoundException());
+      Payment payment = paymentRepository.findByPortonePaymentIdWithLock(paymentId)
+          .orElseThrow(() -> new PaymentNotFoundException());
 
-        if (payment.getPaymentStatus() == PaymentStatus.APPROVED) return;
+      if (payment.getPaymentStatus() == PaymentStatus.APPROVED) {
+        log.info("이미 승인된 결제입니다: {}", paymentId);
+        return;
+      }
 
         // 2. 포트원 서버 조회 및 검증 (최종 금액 확인)
-        PortOneResponse pgData = portOneClient.verify(paymentId);
-        if (!pgData.isValid(payment.getTotalAmount())) {
-            throw new PaymentAmountMismatchException();
-        }
+      io.portone.sdk.server.payment.Payment portoneSdkPayment;
+      try {
+        portoneSdkPayment = portOneClient.getPayment().getPayment(paymentId).join();
+      } catch (CompletionException e) {
+        log.error("Failed to retrieve payment from PortOne SDK for paymentId: {}", paymentId, e);
+        failPayment(paymentId);
+        throw new RuntimeException("PortOne 결제 정보를 가져오는 중 오류 발생", e);
+      }
 
-        try {
-            // 3. 결제 완료 상태로 변경 (엔티티 내 approve 활용)
-            payment.approve();
+      if(!(portoneSdkPayment instanceof PaidPayment)){
+        log.error("PortOne 서버에서 결제 상태가 PAID가 아님. paymentId={}", paymentId);
+        failPayment(paymentId);
+        throw new PaymentAmountMismatchException("PortOne 서버에서 결제 상태가 PAID가 아님");
+      }
 
-            // 4. [연관 포인트 적립] 멤버십 등급별 적립률 적용 로직 호출
-            pointService.registPoint(payment.getId(), payment.getOrderId(), payment.getTotalAmount());
+      long totalAmount = ((PaidPayment) portoneSdkPayment).getAmount().getTotal();
+      if (payment.getTotalAmount().compareTo(BigDecimal.valueOf(totalAmount)) != 0) {
+        log.error("결제 금액 불일치: 시스템 금액={} 포트원 금액={} paymentId={}", totalAmount, totalAmount,
+            paymentId);
+        throw new PaymentAmountMismatchException();
+      }
 
-            // 5. [멤버십 등급 갱신] 총 결제 금액 합산 및 등급 업데이트
-            Long userId = payment.getUser().getId();
-            membershipService.updateMembership(userId);
+      // 상태 변경 (approved)
+      payment.approve();
 
-        } catch (Exception e) {
-            log.error("결제 확정 중 오류 발생, 보상 트랜잭션 시작: {}", e.getMessage());
+      // 포인트 적립
+      pointService.registPoint(payment.getUserId(), payment.getOrderId(),
+          payment.getTotalAmount());
 
-            // 1. 포트원 결제 취소
-            portOneClient.cancel(paymentId, e.getMessage());
+      // 멤버십 갱신
+      membershipService.updateMembership(payment.getUserId());
+    }
 
-            // 2.주문 정보 조회
-          Order order = orderService.findById(payment.getOrderId());
+    // 결제 실패에 대한 모든 비즈니스 로직을 처리하는 메서드
+    @Transactional
+    public void failPayment(String paymentId) {
+      Payment payment = paymentRepository.findByPortonePaymentIdWithLock(paymentId)
+          .orElseThrow(() -> new PaymentNotFoundException());
 
-            // 3.적립 취소
-            pointService.cancelPoint(order.getUserId(), order.getId());
+      if (payment.getPaymentStatus() == PaymentStatus.CANCELLED ||
+          payment.getPaymentStatus() == PaymentStatus.REFUNDED) {
+        log.info("이미 취소/환불된 결제입니다: {}", paymentId);
+        return;
+      }
 
-            // 4.사용 포인트 복구
-            if (payment.getUsedPoint() != null && payment.getUsedPoint().compareTo(BigDecimal.ZERO) > 0) {
-                pointService.restorePoint(order.getUserId(), order.getId(), payment.getUsedPoint());
-            }
+      // 상태 변경 (CANCELLED)
+      payment.cancel();
 
-            // 5.재고 복구 로직
-            for (OrderItem item : order.getOrderItems()) {
-                Product product = productRepository.findById(item.getProductId())
-                        .orElseThrow(() -> new IllegalArgumentException("상품 없음 ID: " + item.getProductId()));
-                product.addStock(item.getQuantity());
-            }
+      // 사용 포인트가 있다면 복구
+      if (payment.getUsedPoint() != null &&
+          payment.getUsedPoint().compareTo(BigDecimal.ZERO) > 0) {
+        pointService.restorePoint(payment.getUserId(),
+            payment.getOrderId(), payment.getUsedPoint());
+      }
 
-            throw e;
-        }
+      // 상품 재고 복구
+      orderService.restoreStock(payment.getOrderId());
+    }
+
+    // 환불에 대한 모든 비즈니스 로직을 처리하는 메서드
+    @Transactional
+    public void refundPayment(String paymentId) {
+      Payment payment = paymentRepository.findByPortonePaymentIdWithLock(paymentId)
+          .orElseThrow(() -> new PaymentNotFoundException());
+
+      if (payment.getPaymentStatus() == PaymentStatus.REFUNDED) {
+        log.info("이미 환불된 결제입니다: {}", paymentId);
+        return;
+      }
+
+      // 상태 변경 REFUNDED
+      payment.refund();
+
+      // 적립되었던 포인트 회수
+      pointService.cancelPoint(payment.getUserId(), payment.getOrderId());
+
+      // 상품 재고 복구
+      orderService.restoreStock(payment.getOrderId());
     }
 
     @Transactional(readOnly = true)
@@ -154,7 +174,7 @@ public class PaymentService {
       return paymentRepository.findByPortonePaymentIdWithLock(portonePaymentId);
   }
 
-  public Optional<Payment> findByPortonePaymentId(String portonePaymentId) {
-      return paymentRepository.findByPortonePaymentId(portonePaymentId);
+  public long getOrderId(String paymentId) {
+    return paymentRepository.getOrderIdByPaymentId(paymentId);
   }
 }
