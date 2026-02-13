@@ -8,6 +8,7 @@ import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 import sparta.paymentassignment.exception.ErrorCode;
 import sparta.paymentassignment.exception.UnauthorizedException;
@@ -45,13 +46,17 @@ public class JwtTokenProvider {
     public String createToken(Authentication authentication) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + tokenValidityInMilliseconds);
+
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        String email = customUserDetails.getEmail();
+
         Long userId = customUserDetails.getId();
+        String role = customUserDetails.getAuthorities().stream()
+                .findFirst()
+                .map(GrantedAuthority::getAuthority).orElse("ROLE_USER");
 
         return Jwts.builder()
-                .subject(email)
-                .claim("userId", userId)
+                .subject(String.valueOf(userId))
+                .claim("role", role)
                 .issuedAt(now)
                 .expiration(validity)
                 .signWith(secretKey)
@@ -69,6 +74,30 @@ public class JwtTokenProvider {
             .getPayload();
 
         return claims.getSubject();
+    }
+
+    public Long getUserId(String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+
+        Claims claims = Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
+        return Long.valueOf(claims.getSubject());
+    }
+
+    public String getRole(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
+        return claims.get("role", String.class);
     }
 
     /**
