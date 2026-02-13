@@ -57,7 +57,7 @@ public class PaymentService {
         BigDecimal finalAmount = request.getAmount().subtract(request.getUsePoint());
 
         // 3. 결제 엔티티 생성 (최종 금액 반영) 및 저장
-        Payment payment = Payment.create(finalAmount, request.getOrderId(), request.getOrderNumber(), request.getUsePoint());
+        Payment payment = Payment.create(finalAmount, request.getOrderId(), order.getOrderNumber(), request.getUsePoint());
         paymentRepository.save(payment);
 
         return new PaymentResponse(payment.getPortonePaymentId(), payment.getTotalAmount(), orderName);

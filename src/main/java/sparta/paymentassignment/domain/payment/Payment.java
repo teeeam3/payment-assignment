@@ -9,6 +9,7 @@ import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import sparta.paymentassignment.common.entity.BaseEntity;
 import sparta.paymentassignment.domain.user.User;
 import sparta.paymentassignment.exception.InvalidStatusTransitionException;
@@ -20,6 +21,7 @@ import sparta.paymentassignment.exception.InvalidStatusTransitionException;
 @Table(name = "payments", indexes = {
     @Index(name = "idx_portone_payment_id", columnList = "portone_payment_id")
 })
+@Slf4j
 public class Payment extends BaseEntity {
 
   @Id
