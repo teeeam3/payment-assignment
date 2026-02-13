@@ -50,14 +50,15 @@ public class UserService {
                 request.getEmail(),
                 passwordEncoder.encode(request.getPassword()),
                 UserRole.USER,
-                BigDecimal.valueOf(500L)
+                BigDecimal.ZERO
         );
         User savedUser = userRepository.save(user);
-        // 유저 포인트 증가
-        userRepository.incrementPoint(savedUser.getId(), BigDecimal.valueOf(500L));
 
         Point point = Point.createInitialPoint(savedUser.getId());
         pointRepository.save(point);
+
+        // 유저 포인트 증가
+        userRepository.incrementPoint(savedUser.getId(), BigDecimal.valueOf(500L));
 
         // 멤버쉽 기본 등급 자동 생성
         // 정책 테이블에서 NORMAL 정책 조회
@@ -70,6 +71,7 @@ public class UserService {
         );
 
         userMembershipRepository.save(userMembership);
+
         return new RegisterResponse(
                 savedUser.getId(),
                 savedUser.getName(),
