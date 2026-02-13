@@ -89,8 +89,8 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public GetUserResponse getUser(String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(
+    public GetUserResponse getUser(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(
                 () -> new UserNotFoundException(ErrorCode.USER_NOT_FOUND)
         );
 

@@ -17,6 +17,8 @@ import sparta.paymentassignment.domain.product.entity.Product;
 import sparta.paymentassignment.domain.product.entity.ProductStatus;
 import sparta.paymentassignment.domain.product.repository.ProductRepository;
 
+import java.math.BigDecimal;
+
 @EnableJpaAuditing
 @SpringBootApplication
 public class PaymentAssignmentApplication {
@@ -33,7 +35,7 @@ public class PaymentAssignmentApplication {
 
             productRepository.save(new Product(
                     "아이폰 15 Pro",
-                    1550000L,
+                    BigDecimal.valueOf(10000),
                     10,
                     "애플 최신 플래그십 스마트폰",
                     ProductStatus.ACTIVE,
@@ -42,7 +44,7 @@ public class PaymentAssignmentApplication {
 
             productRepository.save(new Product(
                     "갤럭시 S25 Ultra",
-                    1450000L,
+                    BigDecimal.valueOf(9000),
                     20,
                     "삼성 최신 안드로이드 스마트폰",
                     ProductStatus.ACTIVE,
@@ -51,7 +53,7 @@ public class PaymentAssignmentApplication {
 
             productRepository.save(new Product(
                     "맥북 프로 M3",
-                    3200000L,
+                    BigDecimal.valueOf(20000),
                     5,
                     "애플 실리콘 M3 탑재 노트북",
                     ProductStatus.ACTIVE,
@@ -60,7 +62,7 @@ public class PaymentAssignmentApplication {
 
             productRepository.save(new Product(
                     "에어팟 프로 2세대",
-                    350000L,
+                    BigDecimal.valueOf(2000),
                     50,
                     "노이즈 캔슬링 무선 이어폰",
                     ProductStatus.ACTIVE,
@@ -69,7 +71,7 @@ public class PaymentAssignmentApplication {
 
             productRepository.save(new Product(
                     "아이패드 Air 6",
-                    900000L,
+                    BigDecimal.valueOf(7000),
                     15,
                     "태블릿 PC",
                     ProductStatus.ACTIVE,

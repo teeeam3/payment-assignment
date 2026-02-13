@@ -1,5 +1,6 @@
 package sparta.paymentassignment.controller;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import sparta.paymentassignment.common.dto.ApiResponse;
 import sparta.paymentassignment.domain.user.dto.*;
 import sparta.paymentassignment.domain.user.service.UserService;
@@ -71,10 +72,9 @@ public class AuthController {
      * 중요: customerUid는 PortOne 빌링키 발급 시 활용!
      */
     @GetMapping("/me")
-    public ResponseEntity<GetUserResponse> getCurrentUser(Principal principal) {
+    public ResponseEntity<GetUserResponse> getCurrentUser(@AuthenticationPrincipal Long userId) {
 
-        String email = principal.getName();
-        return ResponseEntity.status(HttpStatus.OK).body(userService.getUser(email));
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getUser(userId));
     }
     // TODO: 구현
     // 데이터베이스에서 사용자 정보 조회
