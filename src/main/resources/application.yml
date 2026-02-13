@@ -42,11 +42,11 @@ server:
 portone:
   api:
     base-url: https://api.portone.io
-    secret: ${PORTONE_API_SECRET:}
+    secret: ${PORTONE_API_SECRET:vEYN4uGLYpYvKERihGFVX9EnPvRstrQdPO7ERDTcBeYngxyFBdbF7WbmnUnJFDxDzVc0vPloykrcDWfe}
   store:
-    id: ${PORTONE_STORE_ID:}
+    id: ${PORTONE_STORE_ID:store-41d25be8-f33c-4e9f-9e36-7ee7e60424fe}
   channel:
-    kg-inicis: ${PORTONE_CHANNEL_KG:}
+    kg-inicis: ${PORTONE_CHANNEL_KG:channel-key-1f18b095-2267-4915-a403-e8c11fd1345c}
     toss: ${PORTONE_CHANNEL_TOSS:your-toss-channel-key}
   webhook:
     secret: ${PORTONE_WEBHOOK_SECRET:UE9SVE9ORV9XRUJIT09LX1NFQ1JFVFBPUlRPTkVfV0VCSE9PS19TRUNSRVRQT1JUT05FX1dFQkhPT0tfU0VDUkVUUE9SVE9ORV9XRUJIT09LX1NFQ1JFVA==}

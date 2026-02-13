@@ -11,7 +11,8 @@ import java.math.BigDecimal;
 public class OrderSummaryResponse {
 
     private final Long orderId;
-    private final String orderNumber;
+    private final String orderNumber; // 순수 주문번호 느낌생성이 40자로 제한되면
+    private final String orderName; // 아이폰 15 외 4개
     private final BigDecimal totalAmount;
     private final OrderStatus status;
     private final String currency = "krw";

@@ -10,8 +10,14 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class PaymentRequest {
     private Long orderId;
+
+    @JsonProperty("merchant_uid")
     private String orderNumber;
+
     @JsonProperty("totalAmount")
     private BigDecimal amount;
-    private BigDecimal usePoint=BigDecimal.ZERO;
+
+    private String orderName;
+
+    private BigDecimal usedPoint = BigDecimal.ZERO;
 }

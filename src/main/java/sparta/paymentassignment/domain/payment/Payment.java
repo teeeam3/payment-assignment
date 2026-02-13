@@ -71,12 +71,10 @@ public class Payment extends BaseEntity {
       throw new IllegalArgumentException("주문은 반드시 존재해야 합니다.");
     }
 
-    StringBuilder portonePaymentId = new StringBuilder();
-    portonePaymentId.append("payment-").append(orderNumber)
-            .append("-").append(LocalDateTime.now()); // 불필요한 + 제거
+    String finalPortonePaymentId = "pay-" + orderNumber;
 
     return new Payment(
-            portonePaymentId.toString(),
+            finalPortonePaymentId,
             totalAmount,
             PaymentStatus.PENDING,
             null,

@@ -1,5 +1,6 @@
 package sparta.paymentassignment.domain.order;
 
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -15,6 +16,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 @Getter
@@ -43,11 +45,14 @@ public class Order extends BaseEntity {
 
     private String canceledReason;
 
+    private String orderName;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
 
     public Order(Long userId, BigDecimal totalAmount) {
-        this.orderNumber = UUID.randomUUID().toString();// 주문번호 자동 생성
+
+        this.orderNumber = NanoIdUtils.randomNanoId();// 주문번호 자동 생성
         this.userId = userId;
         this.totalAmount = totalAmount;
         this.orderStatus = OrderStatus.PENDING;
@@ -72,6 +77,10 @@ public class Order extends BaseEntity {
             throw new InvalidOrderAmountException(totalAmount);
         }
         this.totalAmount = totalAmount;
+    }
+
+    public void updateOrderName(String orderName) {
+        this.orderName = orderName;
     }
 
     public BigDecimal calculateTotalAmount() {
