@@ -1,5 +1,6 @@
 package sparta.paymentassignment.domain.point.repository;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -13,7 +14,10 @@ public interface PointRepository extends JpaRepository<Point, Long> {
   Optional<Point> findByUserIDAndOrderId(Long userId, Long orderId);
 
     @Query("select p from Point p where p.pointType in " +
-            "('ACCUMULATED', 'RESTORED', 'ADJUSTED_PLUS') and p.expired_at < :now")
+            "('ACCUMULATED', 'RESTORED', 'ADJUSTED_PLUS') and p.expiredAt < :now")
     List<Point> findExpiredPoints(LocalDateTime now);
 
+    @Query("select p from Point p where p.userId = :userId and p.pointType in " +
+            "('ACCUMULATED', 'RESTORED', 'ADJUSTED_PLUS') and p.points > 0 order by p.expiredAt asc ")
+    List<Point> findAvailablePointsOrderByExpire(Long userId);
 }

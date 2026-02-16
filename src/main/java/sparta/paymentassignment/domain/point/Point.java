@@ -32,7 +32,8 @@ public class Point extends BaseEntity {
   @Enumerated(value = EnumType.STRING)
   private PointType pointType;
 
-  private LocalDateTime expired_at;
+  @Column(name = "expired_at")
+  private LocalDateTime expiredAt;
 
   @Column(name = "user_id")
   private Long userId;
@@ -41,11 +42,11 @@ public class Point extends BaseEntity {
   private Long orderId;
 
   @Builder
-  private Point(BigDecimal points, PointType pointType, LocalDateTime expired_at, Long userId,
+  private Point(BigDecimal points, PointType pointType, LocalDateTime expiredAt, Long userId,
       Long orderId) {
     this.points = points;
     this.pointType = pointType;
-    this.expired_at = expired_at;
+    this.expiredAt = expiredAt;
     this.userId = userId;
     this.orderId = orderId;
   }
@@ -81,11 +82,20 @@ public class Point extends BaseEntity {
     this.points = this.points.subtract(reduceAmount);
   }
 
-
-
   // 처음 포인트는 100씩 줌
   public static Point createInitialPoint(Long userId) {
-    return new Point(BigDecimal.valueOf(100L), PointType.ADJUSTED_PLUS,
+    return new Point(BigDecimal.valueOf(500L), PointType.ADJUSTED_PLUS,
         LocalDateTime.now().plusDays(30L), userId, null);
   }
+
+    public void expire() {
+        if (this.pointType != PointType.ACCUMULATED &&
+                this.pointType != PointType.RESTORED &&
+                this.pointType != PointType.ADJUSTED_PLUS) {
+            return;
+        }
+
+        this.points = BigDecimal.ZERO;
+        this.pointType = PointType.EXPIRED;
+    }
 }

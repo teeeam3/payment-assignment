@@ -14,11 +14,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmail(String email);
 
-  @Modifying
+  @Modifying(clearAutomatically = true, flushAutomatically = true)
   @Query("update User u set u.pointBalance = u.pointBalance+:point where u.id=:userId")
   int incrementPoint(@Param("userId") Long userId, @Param("point") BigDecimal point);
 
-  @Modifying
+  @Modifying(clearAutomatically = true, flushAutomatically = true)
   @Query("update User u set u.pointBalance = u.pointBalance-:point where u.id=:userId and u.pointBalance>=:point")
   int decrementPoint(@Param("userId") Long userId, @Param("point") BigDecimal point);
 
