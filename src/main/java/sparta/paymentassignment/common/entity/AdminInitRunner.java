@@ -30,7 +30,7 @@ public class AdminInitRunner implements CommandLineRunner {
                 "admin@test.com",
                 passwordEncoder.encode("admin"),
                 UserRole.ADMIN,
-                new BigDecimal(5000)
+                new BigDecimal(0)
         );
         userRepository.save(admin);
 

@@ -122,14 +122,13 @@ public class UserService {
       return userRepository.incrementPoint(userId, point);
     }
 
-  @Transactional
-  public int retrievePoint(Long userId, BigDecimal points) {
-    int updatedRows = userRepository.decrementPoint(userId, points);
-    if (updatedRows == 0) {
-      // 잔액이 부족하거나 유저가 없는 경우
-      throw new InsufficientPointException("포인트 잔액이 부족하여 회수할 수 없습니다.");
+    @Transactional
+    public int retrievePoint(Long userId, BigDecimal points) {
+        int updatedRows = userRepository.decrementPoint(userId, points);
+        if (updatedRows == 0) {
+        // 잔액이 부족하거나 유저가 없는 경우
+        throw new InsufficientPointException("포인트 잔액이 부족하여 회수할 수 없습니다.");
+        }
+        return updatedRows;
     }
-    return updatedRows;
-  }
-
 }

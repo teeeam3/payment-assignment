@@ -47,7 +47,7 @@ public class PointService {
         .pointType(PointType.ACCUMULATED)
         .orderId(orderId)
         .userId(userId)
-        .expired_at(LocalDateTime.now().plusDays(30))
+        .expiredAt(LocalDateTime.now().plusDays(30))
         .build();
 
     pointRepository.save(pointHistory);
