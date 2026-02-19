@@ -38,4 +38,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     @Query("select p.orderId from Payment p where p.paymentId=:paymentId")
     long getOrderIdByPaymentId(String paymentId);
+
+    @Query("select p.userId from Payment p where p.paymentId=:paymentId")
+    long getUserIdByPaymentId(String paymentId);
 }
