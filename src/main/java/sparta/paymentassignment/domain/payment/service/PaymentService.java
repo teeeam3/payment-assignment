@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sparta.paymentassignment.domain.order.Order;
+import sparta.paymentassignment.domain.order.OrderStatus;
 import sparta.paymentassignment.domain.order.service.OrderService;
 import sparta.paymentassignment.domain.payment.Payment;
 import sparta.paymentassignment.domain.payment.PaymentStatus;
@@ -138,6 +139,7 @@ public class PaymentService {
     public void refundPayment(String paymentId) {
       Payment payment = paymentRepository.findByPortonePaymentIdWithLock(paymentId)
           .orElseThrow(() -> new PaymentNotFoundException());
+      Long orderId = payment.getOrderId();
 
       if (payment.getPaymentStatus() == PaymentStatus.REFUNDED) {
         log.info("이미 환불된 결제입니다: {}", paymentId);
@@ -152,6 +154,9 @@ public class PaymentService {
 
       // 상품 재고 복구
       orderService.restoreStock(payment.getOrderId());
+
+      // 주문 상태 변경
+      orderService.updateOrderStatus(orderId, OrderStatus.REFUNDED);
     }
 
     @Transactional(readOnly = true)
