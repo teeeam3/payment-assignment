@@ -82,8 +82,11 @@ public class WebhookController {
 
     try {
       switch (transactionType) {
-        case PAID:
+        case READY:
           webhookService.processPaid(webhookId, paymentId);
+          break;
+        case PAID:
+          webhookService.processConfirmed(webhookId, paymentId);
           break;
         case CANCELLED:
           webhookService.processRefund(webhookId, paymentId);

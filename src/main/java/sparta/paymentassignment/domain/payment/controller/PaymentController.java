@@ -35,6 +35,13 @@ public class PaymentController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(200, "결제 확정 요청 성공", null));
     }
 
+    // 결제 환불 요청
+    @PostMapping("/refunds/{paymentId}")
+    public ResponseEntity<Void> refundPayment(@PathVariable String paymentId) {
+      paymentService.refundPayment(paymentId);
+      return ResponseEntity.ok().build();
+    }
+
     // 결제 내역 조회
     @GetMapping
     public ResponseEntity<List<PaymentDetail>> getPaymentList(Authentication authentication) {
