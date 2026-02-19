@@ -1,14 +1,14 @@
 spring:
   sql:
     init:
-      mode: never  # always / embedded / never
+      mode: never   # always / embedded / never
       data-locations: classpath:data.sql
       schema-locations: classpath:schema.sql
 
   datasource:
     url: jdbc:mysql://localhost:3306/payment_db
     username: root
-    password: ${MYSQL_ROOT_PASSWORD:12345678}
+    password: ${MYSQL_ROOT_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -42,14 +42,14 @@ server:
 portone:
   api:
     base-url: https://api.portone.io
-    secret: ${PORTONE_API_SECRET:vEYN4uGLYpYvKERihGFVX9EnPvRstrQdPO7ERDTcBeYngxyFBdbF7WbmnUnJFDxDzVc0vPloykrcDWfe}
+    secret: ${PORTONE_API_SECRET:d0njuFO1sblcEtvZ8jIUDkVGEqcZPKrVm5lnRPlyAJfZfdmI5hBhvY1TA9CL37p5Kea41th0nlFmgIZc}
   store:
-    id: ${PORTONE_STORE_ID:store-41d25be8-f33c-4e9f-9e36-7ee7e60424fe}
+    id: ${PORTONE_STORE_ID:store-37e7fff3-31a3-4e7a-90e3-2475a7fd1a3f}
   channel:
-    kg-inicis: ${PORTONE_CHANNEL_KG:channel-key-1f18b095-2267-4915-a403-e8c11fd1345c}
-    toss: ${PORTONE_CHANNEL_TOSS:your-toss-channel-key}
+    kg-inicis: ${PORTONE_CHANNEL_KG:channel-key-fa864ce0-d67f-4b5e-99db-43fba9992d46}
+    toss: ${PORTONE_CHANNEL_TOSS:channel-key-24bf3e8c-8bd7-4300-aa1b-8619ce3b4613}
   webhook:
-    secret: ${PORTONE_WEBHOOK_SECRET:UE9SVE9ORV9XRUJIT09LX1NFQ1JFVFBPUlRPTkVfV0VCSE9PS19TRUNSRVRQT1JUT05FX1dFQkhPT0tfU0VDUkVUUE9SVE9ORV9XRUJIT09LX1NFQ1JFVA==}
+    secret: ${PORTONE_WEBHOOK_SECRET:whsec_hiwD4rWPr46MoMvie8OdoBTOWTc/6tkfzWk7CEDBIPU=}
 # JWT Configuration
 jwt:
   secret: ${JWT_SECRET:commercehub-secret-key-for-demo-please-change-this-in-production-environment}
