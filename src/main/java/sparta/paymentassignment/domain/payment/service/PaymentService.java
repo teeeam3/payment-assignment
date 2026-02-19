@@ -8,6 +8,7 @@ import java.util.concurrent.CompletionException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import sparta.paymentassignment.domain.order.Order;
 import sparta.paymentassignment.domain.order.OrderStatus;
@@ -19,14 +20,10 @@ import sparta.paymentassignment.domain.payment.dto.PaymentRequest;
 import sparta.paymentassignment.domain.payment.dto.PaymentResponse;
 import sparta.paymentassignment.domain.payment.repository.PaymentRepository;
 import sparta.paymentassignment.domain.point.service.PointService;
-import sparta.paymentassignment.domain.user.User;
-import sparta.paymentassignment.domain.user.repository.UserRepository;
 import sparta.paymentassignment.domain.user.service.UserMembershipService;
-import sparta.paymentassignment.exception.ErrorCode;
 import sparta.paymentassignment.exception.PaymentAmountMismatchException;
 import sparta.paymentassignment.exception.PaymentNotFoundException;
 import sparta.paymentassignment.domain.product.repository.ProductRepository;
-import sparta.paymentassignment.exception.UserNotFoundException;
 
 import java.util.List;
 @Slf4j
@@ -38,10 +35,9 @@ public class PaymentService {
     private final PointService pointService;   // 포인트 적립 담당 연동
     private final UserMembershipService membershipService; // 멤버십 갱신 담당 연동
     private final OrderService orderService;
-    private final UserRepository userRepository;
 
 
-    @Transactional
+  @Transactional
   public PaymentResponse initiatePayment(PaymentRequest request, Long userId) {
     // 1. 주문 정보 조회 및 상품명 가공
     // OrderService를 통해서 order를 가져오도록 수정
@@ -99,6 +95,7 @@ public class PaymentService {
       if (payment.getTotalAmount().compareTo(BigDecimal.valueOf(totalAmount)) != 0) {
         log.error("결제 금액 불일치: 시스템 금액={} 포트원 금액={} paymentId={}", payment, totalAmount,
             paymentId);
+        failPayment(paymentId);
         throw new PaymentAmountMismatchException();
       }
 
@@ -114,7 +111,7 @@ public class PaymentService {
     }
 
     // 결제 실패에 대한 모든 비즈니스 로직을 처리하는 메서드
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void failPayment(String paymentId) {
       Payment payment = paymentRepository.findByPortonePaymentIdWithLock(paymentId)
           .orElseThrow(() -> new PaymentNotFoundException());
@@ -149,6 +146,28 @@ public class PaymentService {
       if (payment.getPaymentStatus() == PaymentStatus.REFUNDED) {
         log.info("이미 환불된 결제입니다: {}", paymentId);
         return;
+      }
+
+      // 포트원 서버에 환불 요청
+      try {
+        portOneClient.getPayment().cancelPayment(
+            paymentId,
+            null,
+            null,
+            null,
+            "환불요청",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        ).join();
+
+        log.info("포트원 결제 취소 성공: {}", paymentId);
+      }catch (Exception e){
+        log.error("포트원 결제 취소 중 오류 발생: {}", paymentId, e);
+        throw new RuntimeException("환불 처리 중 에러가 발생.", e);
       }
 
       // 상태 변경 REFUNDED

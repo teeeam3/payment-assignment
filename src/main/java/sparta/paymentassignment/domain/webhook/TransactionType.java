@@ -3,6 +3,7 @@ package sparta.paymentassignment.domain.webhook;
 import java.util.Arrays;
 
 public enum TransactionType {
+  READY("Transaction.Ready"),
   PAID("Transaction.Paid"),
   CANCELLED("Transaction.Cancelled"),
   FAILED("Transaction.Failed"),

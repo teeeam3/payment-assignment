@@ -4,6 +4,7 @@ import io.portone.sdk.server.PortOneClient;
 import io.portone.sdk.server.payment.CancelledPayment;
 import io.portone.sdk.server.payment.FailedPayment;
 import io.portone.sdk.server.payment.PaidPayment;
+import io.portone.sdk.server.payment.ReadyPayment;
 import java.util.concurrent.CompletionException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import sparta.paymentassignment.domain.order.OrderStatus;
 import sparta.paymentassignment.domain.order.service.OrderService;
+import sparta.paymentassignment.domain.payment.PaymentStatus;
 import sparta.paymentassignment.domain.payment.service.PaymentService;
 import sparta.paymentassignment.domain.webhook.WebhookStatus;
 import sparta.paymentassignment.domain.webhook.exception.NotYetPaidException;
@@ -33,14 +35,34 @@ public class WebhookService {
     } catch (DataIntegrityViolationException e) {
       return; // 중복 웹훅이므로 처리 종료
     }
-
     try {
       // PortOne 서버 검증
       portOneClient.getPayment().getPayment(paymentId).thenAccept(payment -> {
+        if (!(payment instanceof ReadyPayment)) {
+          // paid 웹훅을 받았는데 PortOne 서버에서 Ready 상태가 아니면 문제
+          log.error("Ready 웹훅을 받았으나 Portone 서버에서는 Ready 상태가 아님 paymentId={}", paymentId);
+          throw new NotYetPaidException("아직 포트원이 준비되지 않음");
+        }
+      }).join();
+      webhookTransactionService.updateWebhookStatus(webhookId, WebhookStatus.FINISHED);
+    } catch (CompletionException e) {
+      throw new RuntimeException("결제 준비중 오류 발생");
+    }
+  }
+
+  // 결제 확정되었을때의 웹훅 처리
+  public void processConfirmed(String webhookId, String paymentId) {
+    try {
+      webhookTransactionService.recordWebhook(webhookId);
+    } catch (DataIntegrityViolationException e) {
+      return; // 중복 웹훅이므로 처리 종료
+    }
+    try {
+      // 포트원 검증
+      portOneClient.getPayment().getPayment(paymentId).thenAccept(payment -> {
         if (!(payment instanceof PaidPayment)) {
-          // paid 웹훅을 받았는데 PortOne 서버에서 paid 상태가 아니면 문제
-          log.error("PAID 웹훅을 받았으나 Portone 서버에서는 PAID 상태가 아님 paymentId={}", paymentId);
-          throw new NotYetPaidException("아직 포트원에서 결제되지 않음");
+          log.error("Paid 웹훅을 받았으나 Portone 서버에서는 Paid 상태가 아님. paymentId={}", paymentId);
+          throw new IllegalStateException("포트원 서버상 취소된 결제가 아님");
         }
       }).join();
 
