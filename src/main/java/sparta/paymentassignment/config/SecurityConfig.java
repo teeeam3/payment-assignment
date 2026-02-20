@@ -50,7 +50,6 @@ public class SecurityConfig {
               .requestMatchers("/portone-webhook").permitAll()
               // 1) 정적 리소스
               .requestMatchers(toStaticResources().atCommonLocations()).permitAll()
-
               // 2) 템플릿 페이지 렌더링
               .requestMatchers(HttpMethod.GET, "/").permitAll()
               .requestMatchers(HttpMethod.GET, "/pages/**").permitAll()
