@@ -70,6 +70,8 @@ public class PaymentService {
       Payment payment = paymentRepository.findByPortonePaymentIdWithLock(paymentId)
           .orElseThrow(() -> new PaymentNotFoundException());
 
+      Long orderId = payment.getOrderId();
+
       if (payment.getPaymentStatus() == PaymentStatus.APPROVED) {
         log.info("이미 승인된 결제입니다: {}", paymentId);
         return;
@@ -101,6 +103,9 @@ public class PaymentService {
 
       // 상태 변경 (approved)
       payment.approve();
+
+      // 오더 상태 변경
+      orderService.updateOrderStatus(orderId, OrderStatus.COMPLETED);
 
       // 포인트 적립
       pointService.registPoint(payment.getUserId(), payment.getOrderId(),
