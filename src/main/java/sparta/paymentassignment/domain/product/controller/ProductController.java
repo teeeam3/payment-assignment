@@ -11,7 +11,6 @@ import sparta.paymentassignment.common.dto.ApiResponse;
 import sparta.paymentassignment.domain.product.dto.ProductDetailResponse;
 import sparta.paymentassignment.domain.product.dto.ProductSummaryResponse;
 import sparta.paymentassignment.domain.product.service.ProductService;
-
 import java.util.List;
 
 @RestController

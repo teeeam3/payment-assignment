@@ -3,7 +3,6 @@ package sparta.paymentassignment.domain.product.dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import sparta.paymentassignment.domain.product.entity.ProductStatus;
-
 import java.math.BigDecimal;
 
 @Getter

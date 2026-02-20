@@ -1,10 +1,8 @@
 package sparta.paymentassignment.domain.payment;
 
 import jakarta.persistence.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -49,7 +47,7 @@ public class Payment extends BaseEntity {
 
   private Payment(String paymentId, BigDecimal totalAmount, PaymentStatus paymentStatus,
       Long userId, LocalDateTime paidAt, LocalDateTime refundedAt, Long orderId,
-      BigDecimal usedPoint) {
+      BigDecimal usedPoint, LocalDateTime cancelledAt) {
 
     this.paymentId = paymentId;
     this.totalAmount = totalAmount;
@@ -59,6 +57,7 @@ public class Payment extends BaseEntity {
     this.orderId = orderId;
     this.usedPoint = usedPoint;
     this.userId = userId;
+    this.cancelledAt = cancelledAt;
   }
 
   public static Payment create(BigDecimal totalAmount, Long orderId, String orderNumber,
@@ -81,28 +80,29 @@ public class Payment extends BaseEntity {
             null,
             null,
             orderId,
-            usedPoint
+            usedPoint,
+            null
     );
   }
 
   public Payment approve() {
     validateTransition(PaymentStatus.APPROVED);
-
     this.paymentStatus = PaymentStatus.APPROVED;
+    this.paidAt = LocalDateTime.now();
     return this;
   }
 
   public Payment cancel() {
     validateTransition(PaymentStatus.CANCELLED);
-
     this.paymentStatus = PaymentStatus.CANCELLED;
+    this.cancelledAt = LocalDateTime.now();
     return this;
   }
 
   public Payment refund() {
     validateTransition(PaymentStatus.REFUNDED);
-
     this.paymentStatus = PaymentStatus.REFUNDED;
+    this.refundedAt = LocalDateTime.now();
     return this;
   }
 

@@ -3,17 +3,14 @@ package sparta.paymentassignment.domain.point.service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sparta.paymentassignment.domain.point.Point;
 import sparta.paymentassignment.domain.point.PointType;
 import sparta.paymentassignment.domain.point.exception.InsufficientPointException;
 import sparta.paymentassignment.domain.point.exception.PointNotFoundException;
-import sparta.paymentassignment.domain.point.exception.PointStatusException;
 import sparta.paymentassignment.domain.point.repository.PointRepository;
 import sparta.paymentassignment.domain.user.repository.UserRepository;
 import sparta.paymentassignment.domain.user.service.UserService;

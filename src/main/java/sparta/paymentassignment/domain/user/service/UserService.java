@@ -25,7 +25,6 @@ import sparta.paymentassignment.exception.MembershipPolicyNotFoundException;
 import sparta.paymentassignment.exception.UserNotFoundException;
 import sparta.paymentassignment.security.CustomUserDetails;
 import sparta.paymentassignment.security.JwtTokenProvider;
-
 import java.util.UUID;
 
 @Service

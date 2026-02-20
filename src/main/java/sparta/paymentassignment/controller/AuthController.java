@@ -1,5 +1,6 @@
 package sparta.paymentassignment.controller;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import sparta.paymentassignment.common.dto.ApiResponse;
 import sparta.paymentassignment.domain.user.dto.*;
@@ -10,8 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
-
-import java.security.Principal;
 
 /**
  * 인증 관련 API 컨트롤러
@@ -75,7 +74,8 @@ public class AuthController {
      * 중요: customerUid는 PortOne 빌링키 발급 시 활용!
      */
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse<GetUserResponse>> getCurrentUser(@AuthenticationPrincipal Long userId) {
+    public ResponseEntity<ApiResponse<GetUserResponse>> getCurrentUser(Authentication authentication) {
+        Long userId = Long.valueOf(authentication.getName());
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success(200, "정보 조회 성공", userService.getUser(userId)));
     }

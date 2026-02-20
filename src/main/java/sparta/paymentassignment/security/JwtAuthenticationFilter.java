@@ -1,6 +1,5 @@
 package sparta.paymentassignment.security;
 
-import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import sparta.paymentassignment.exception.ErrorCode;
 import sparta.paymentassignment.exception.UnauthorizedException;
-
 import java.io.IOException;
 import java.util.List;
 

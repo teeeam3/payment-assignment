@@ -5,10 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sparta.paymentassignment.domain.point.Point;
-import sparta.paymentassignment.domain.point.PointType;
 import sparta.paymentassignment.domain.point.repository.PointRepository;
 import sparta.paymentassignment.domain.user.service.UserService;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;

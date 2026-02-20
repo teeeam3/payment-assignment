@@ -59,16 +59,6 @@ public class Point extends BaseEntity {
     this.pointType = targetType;
   }
 
-  // 포인트 적립
-  public static Point createAccumulated(Long userId, BigDecimal amount, Long orderId) {
-    return Point.builder()
-        .userId(userId)
-        .points(amount)
-        .orderId(orderId)
-        .pointType(PointType.ACCUMULATED)
-        .build();
-  }
-
   // 포인트 차감/소멸 처리 로직
   public void reduce(PointType target, BigDecimal reduceAmount) {
     if (!this.pointType.canMove(target)) {

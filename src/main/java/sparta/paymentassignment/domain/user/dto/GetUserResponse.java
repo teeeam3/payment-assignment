@@ -1,7 +1,6 @@
 package sparta.paymentassignment.domain.user.dto;
 
 import lombok.Getter;
-
 import java.math.BigDecimal;
 
 @Getter
@@ -21,8 +20,4 @@ public class GetUserResponse {
         this.phone = phone;
         this.pointBalance = pointBalance;
     }
-
-
-
-
 }

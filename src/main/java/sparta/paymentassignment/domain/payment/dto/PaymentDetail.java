@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import sparta.paymentassignment.domain.payment.Payment;
 import sparta.paymentassignment.domain.payment.PaymentStatus;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -17,7 +16,6 @@ public class PaymentDetail {
     private BigDecimal totalAmount;  // 총 결제 금액
     private PaymentStatus status;    // 결제 상태 (APPROVED, CANCELLED 등)
     private LocalDateTime paidAt;    // 결제 완료 시각
-
 
     public static PaymentDetail from(Payment payment) {
         return new PaymentDetail(

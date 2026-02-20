@@ -1,6 +1,5 @@
 package sparta.paymentassignment.domain.point.repository;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
