@@ -5,7 +5,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import sparta.paymentassignment.common.entity.BaseEntity;
-
 import java.math.BigDecimal;
 
 @Getter

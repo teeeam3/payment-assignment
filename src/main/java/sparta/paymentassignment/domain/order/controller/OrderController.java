@@ -3,11 +3,10 @@ package sparta.paymentassignment.domain.order.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import sparta.paymentassignment.common.dto.ApiResponse;
-
-import java.security.Principal;
 import java.util.List;
 import sparta.paymentassignment.domain.order.dto.CreateOrderRequest;
 import sparta.paymentassignment.domain.order.dto.CreateOrderResponse;
@@ -26,8 +25,9 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<ApiResponse<OrderCreateResult>> createOrder(
             @Valid @RequestBody CreateOrderRequest request,
-            @AuthenticationPrincipal Long userId
+            Authentication authentication
     ) {
+        Long userId = Long.valueOf(authentication.getName());
         CreateOrderResponse response = orderService.createOrder(request, userId);
 
         return ResponseEntity.status(201).body(

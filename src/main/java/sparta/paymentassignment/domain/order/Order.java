@@ -37,8 +37,6 @@ public class Order extends BaseEntity {
   @Column(nullable = false)
   private OrderStatus orderStatus;
 
-  private String canceledReason;
-
   private String orderName;
 
   @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -50,15 +48,6 @@ public class Order extends BaseEntity {
     this.userId = userId;
     this.totalAmount = totalAmount;
     this.orderStatus = OrderStatus.PENDING;
-  }
-
-  public void complete() {
-    this.orderStatus = OrderStatus.COMPLETED;
-  }
-
-  public void refund(String reason) {
-    this.orderStatus = OrderStatus.REFUNDED;
-    this.canceledReason = reason;
   }
 
   public void addOrderItem(OrderItem item) {

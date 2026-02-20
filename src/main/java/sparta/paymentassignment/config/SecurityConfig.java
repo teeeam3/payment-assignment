@@ -1,7 +1,6 @@
 package sparta.paymentassignment.config;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Primary;
 import sparta.paymentassignment.security.CustomUserDetailsService;
 import sparta.paymentassignment.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
@@ -13,12 +12,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -55,7 +50,6 @@ public class SecurityConfig {
               .requestMatchers("/portone-webhook").permitAll()
               // 1) 정적 리소스
               .requestMatchers(toStaticResources().atCommonLocations()).permitAll()
-
               // 2) 템플릿 페이지 렌더링
               .requestMatchers(HttpMethod.GET, "/").permitAll()
               .requestMatchers(HttpMethod.GET, "/pages/**").permitAll()

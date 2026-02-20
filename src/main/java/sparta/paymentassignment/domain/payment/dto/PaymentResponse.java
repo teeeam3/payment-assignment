@@ -2,7 +2,6 @@ package sparta.paymentassignment.domain.payment.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
 import java.math.BigDecimal;
 
 @Getter

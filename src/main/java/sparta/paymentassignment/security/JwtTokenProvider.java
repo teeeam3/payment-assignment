@@ -12,7 +12,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 import sparta.paymentassignment.exception.ErrorCode;
 import sparta.paymentassignment.exception.UnauthorizedException;
-
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;

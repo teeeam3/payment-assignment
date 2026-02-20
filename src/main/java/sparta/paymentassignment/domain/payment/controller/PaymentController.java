@@ -4,15 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import sparta.paymentassignment.common.dto.ApiResponse;
 import sparta.paymentassignment.domain.payment.dto.PaymentDetail;
 import sparta.paymentassignment.domain.payment.dto.PaymentRequest;
 import sparta.paymentassignment.domain.payment.dto.PaymentResponse;
 import sparta.paymentassignment.domain.payment.service.PaymentService;
-
-import java.nio.file.attribute.UserPrincipal;
 import java.util.List;
 
 @RestController

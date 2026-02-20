@@ -14,7 +14,6 @@ import sparta.paymentassignment.domain.webhook.repository.WebhookRepository;
 @RequiredArgsConstructor
 @Slf4j
 public class WebhookTransactionService {
-
   private final WebhookRepository webhookRepository;
 
   /**

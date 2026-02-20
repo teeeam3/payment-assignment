@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import sparta.paymentassignment.domain.product.excption.InsufficientStockException;
 import sparta.paymentassignment.exception.ErrorCode;
-
 import java.math.BigDecimal;
 
 @Getter
@@ -44,12 +43,9 @@ public class Product {
         this.status = status;
         this.category = category;
     }
-    public void addStock(int quantity) {
+    public int addStock(int quantity) {
         this.stock += quantity;
-    }
-
-    public void updateStock(int newStock) {
-    this.stock = newStock;
+        return this.stock;
     }
 
     public void validateStock(int quantity) {

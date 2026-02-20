@@ -4,15 +4,15 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import sparta.paymentassignment.domain.user.User;
-
 import java.util.Collection;
 import java.util.List;
 
 public class CustomUserDetails implements UserDetails {
-
     private final User user;
+    private final List<GrantedAuthority> grantedAuthorities;
 
     public CustomUserDetails(User user) {
+        this.grantedAuthorities = List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().getRoleName()));
         this.user = user;
     }
 
@@ -26,7 +26,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(user.getRole().getRoleName()));
+        return grantedAuthorities;
     }
 
     @Override

@@ -57,7 +57,6 @@ public class WebhookController {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
-
     // 검증 통과 후 DTO 변환
     PortoneWebhookPayload payload;
     try {

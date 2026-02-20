@@ -23,9 +23,8 @@ import sparta.paymentassignment.domain.point.service.PointService;
 import sparta.paymentassignment.domain.user.service.UserMembershipService;
 import sparta.paymentassignment.exception.PaymentAmountMismatchException;
 import sparta.paymentassignment.exception.PaymentNotFoundException;
-import sparta.paymentassignment.domain.product.repository.ProductRepository;
-
 import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -35,7 +34,6 @@ public class PaymentService {
     private final PointService pointService;   // 포인트 적립 담당 연동
     private final UserMembershipService membershipService; // 멤버십 갱신 담당 연동
     private final OrderService orderService;
-
 
   @Transactional
   public PaymentResponse initiatePayment(PaymentRequest request, Long userId) {

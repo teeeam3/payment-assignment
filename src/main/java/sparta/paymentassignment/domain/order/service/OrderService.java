@@ -72,12 +72,6 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public Order getOrder(Long orderId) {
-        return orderRepository.findById(orderId)
-                .orElseThrow(() -> new OrderNotFoundException(orderId));
-    }
-
-    @Transactional(readOnly = true)
     public List<OrderSummaryResponse> getOrders() {
         return orderRepository.findAll().stream()
                 .map(order -> new OrderSummaryResponse(
@@ -115,10 +109,6 @@ public class OrderService {
         );
     }
 
-  public Long findUserIdByOrderId(Long orderId) {
-    return orderRepository.findUserIdByOrderId(orderId).orElseThrow(() -> new OrderNotFoundException(orderId));
-  }
-
   @Transactional
   public void restoreStock(Long orderId) {
     Order order = orderRepository.findById(orderId)
@@ -143,7 +133,7 @@ public class OrderService {
     return orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException(orderId));
   }
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @Transactional
   public void updateOrderStatus(Long orderId, OrderStatus orderStatus) {
     Order order = orderRepository.findById(orderId)
         .orElseThrow(() -> new OrderNotFoundException(orderId));

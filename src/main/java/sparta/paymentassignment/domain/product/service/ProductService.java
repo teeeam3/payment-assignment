@@ -10,7 +10,6 @@ import sparta.paymentassignment.domain.product.entity.ProductStatus;
 import sparta.paymentassignment.domain.product.excption.InvalidProductStatusException;
 import sparta.paymentassignment.domain.product.excption.ProductNotFoundException;
 import sparta.paymentassignment.domain.product.repository.ProductRepository;
-
 import java.util.List;
 
 @Service
@@ -30,9 +29,8 @@ public class ProductService {
                         product.getStock()
                 ))
                 .toList();
-
-
     }
+
     // 상품 상세 조회
     public ProductDetailResponse getProduct(Long productId) {
 
@@ -58,8 +56,7 @@ public class ProductService {
     public void refillProduct(Long productId, Integer quantity) {
       Product product = productRepository.findById(productId)
           .orElseThrow(() -> new ProductNotFoundException(productId));
-      int newStock = product.getStock() + quantity;
-      product.updateStock(newStock);
+      product.addStock(quantity);
     }
 
     public Product getProductForOrderItem (Long productId, int quantity) {

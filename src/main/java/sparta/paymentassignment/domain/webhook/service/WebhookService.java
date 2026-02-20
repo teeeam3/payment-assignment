@@ -12,7 +12,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import sparta.paymentassignment.domain.order.OrderStatus;
 import sparta.paymentassignment.domain.order.service.OrderService;
-import sparta.paymentassignment.domain.payment.PaymentStatus;
 import sparta.paymentassignment.domain.payment.service.PaymentService;
 import sparta.paymentassignment.domain.webhook.WebhookStatus;
 import sparta.paymentassignment.domain.webhook.exception.NotYetPaidException;
@@ -26,7 +25,6 @@ public class WebhookService {
   private final PaymentService paymentService;
   private final OrderService orderService;
   private final WebhookTransactionService webhookTransactionService;
-
 
   // 결제가 승인되었을 때의 웹훅 처리
   public void processPaid(String webhookId, String paymentId) {

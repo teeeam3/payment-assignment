@@ -13,7 +13,6 @@ import sparta.paymentassignment.domain.user.repository.UserRepository;
 import sparta.paymentassignment.exception.ErrorCode;
 import sparta.paymentassignment.exception.MembershipPolicyNotFoundException;
 import sparta.paymentassignment.exception.UserNotFoundException;
-
 import java.math.BigDecimal;
 
 @Service
@@ -22,7 +21,6 @@ public class UserMembershipService {
     private final UserMembershipRepository userMembershipRepository;
     private final MembershipPolicyRepository membershipPolicyRepository;
     private final PaymentRepository paymentRepository;
-    private final UserRepository userRepository;
 
     @Transactional
     public void updateMembership(Long userId) {
