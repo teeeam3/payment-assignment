@@ -28,9 +28,9 @@ public class PointService {
 
   private final UserService userService;
   private final PointRepository pointRepository;
-    private final UserRepository userRepository;
+  private final UserRepository userRepository;
 
-    @Transactional
+  @Transactional
   public void registPoint(Long userId, Long orderId, BigDecimal totalAmount) {
     // 총 결제금액의 3%가 point로 들어감
     BigDecimal pointAccumulatedAmount = totalAmount.multiply(BigDecimal.valueOf(0.03));
@@ -63,46 +63,48 @@ public class PointService {
 
     // 유저의 포인트 차감
     int updatedRows = userService.retrievePoint(userId, point.getPoints());
-    if(updatedRows == 0) {
+    if (updatedRows == 0) {
       throw new UserNotFoundException(ErrorCode.USER_NOT_FOUND);
     }
 
     log.info("포인트 회수 완료: userId={}, orderId={}, amount={}", userId, orderId, point.getPoints());
   }
+
   @Transactional
   public void usePoint(Long userId, Long orderId, BigDecimal amount) {
 
+    // 유저 총 포인트 차감
+    userService.retrievePoint(userId, amount);
 
-      // 유저 총 포인트 차감
-      userService.retrievePoint(userId, amount);
+    // 포인트 리스트 조회(만료일 가까운 순 사용)
+    List<Point> points = pointRepository.findAvailablePointsOrderByExpire(userId);
 
-      // 포인트 리스트 조회(만료일 가까운 순 사용)
-      List<Point> points = pointRepository.findAvailablePointsOrderByExpire(userId);
+    BigDecimal remaining = amount;
 
-      BigDecimal remaining = amount;
-
-      for (Point point : points) {
-          if (remaining.compareTo(BigDecimal.ZERO) <= 0) break;
-
-          BigDecimal usedPoint = point.getPoints();
-
-          point.reduce(PointType.USED, usedPoint);
-
-          remaining = remaining.subtract(usedPoint);
+    for (Point point : points) {
+      if (remaining.compareTo(BigDecimal.ZERO) <= 0) {
+        break;
       }
 
-      // 포인트 부족 검증
-      if (remaining.compareTo(BigDecimal.ZERO) > 0) {
-          throw new InsufficientPointException("포인트 잔액이 부족합니다.");
-      }
+      BigDecimal usedPoint = point.getPoints();
+
+      point.reduce(PointType.USED, usedPoint);
+
+      remaining = remaining.subtract(usedPoint);
+    }
+
+    // 포인트 부족 검증
+    if (remaining.compareTo(BigDecimal.ZERO) > 0) {
+      throw new InsufficientPointException("포인트 잔액이 부족합니다.");
+    }
 
     //포인트 사용 이력 저장
     Point pointHistory = Point.builder()
-            .points(amount)
-            .pointType(PointType.USED)
-            .orderId(orderId)
-            .userId(userId)
-            .build();
+        .points(amount)
+        .pointType(PointType.USED)
+        .orderId(orderId)
+        .userId(userId)
+        .build();
 
     pointRepository.save(pointHistory);
   }
@@ -114,11 +116,11 @@ public class PointService {
 
     //포인트 이력에 '사용 취소' 기록 남기
     Point pointHistory = Point.builder()
-            .points(amount)
-            .pointType(PointType.RESTORED) // 사용 취소 타입
-            .orderId(orderId)
-            .userId(userId)
-            .build();
+        .points(amount)
+        .pointType(PointType.RESTORED) // 사용 취소 타입
+        .orderId(orderId)
+        .userId(userId)
+        .build();
 
     pointRepository.save(pointHistory);
   }
